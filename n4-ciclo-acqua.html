@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ciclo dell'Acqua — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n4); }
+.sim-box { border-radius:var(--radius-lg); overflow:hidden; background:#060a14; border:1px solid var(--n4border); }
+#cycleCanvas { display:block; width:100%; }
+.ctrl-row { display:flex; flex-wrap:wrap; gap:12px; padding:12px 16px; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.04); align-items:center; }
+.ctrl-row label { font-size:.72rem; color:rgba(255,255,255,.4); }
+.ctrl-row input[type="range"] { width:140px; accent-color:var(--n4); }
+.ctrl-row .val { color:var(--n4); font-size:.82rem; font-weight:600; min-width:50px; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>Ciclo dell'Acqua</h1><div class="subtitle">Scienze della Terra e ambiente &middot; Nucleo 4</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>Il <span class="iper" data-iper="ciclo-acqua">ciclo dell'acqua</span></h2>
+    <p>L'acqua compie un viaggio continuo: evapora, forma nuvole, precipita e torna al mare. Regola la temperatura del Sole per accelerare o rallentare il ciclo!</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Rilevare variazioni meteorologiche; creare un diario meteorologico</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Conoscenze: suolo, acqua, aria, piante; nozioni di struttura della Terra</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Esaminare fattori che influenzano il clima; simulazione dell'<span class="iper" data-iper="effetto-serra">effetto serra</span></div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>Simulatore</h2>
+    <div class="sim-box">
+      <canvas id="cycleCanvas" width="900" height="500"></canvas>
+      <div class="ctrl-row">
+        <label>Temperatura solare:</label>
+        <input type="range" id="sunTemp" min="0" max="100" value="50" oninput="document.getElementById('sunV').textContent=this.value+'%'">
+        <span class="val" id="sunV">50%</span>
+        <label>Vento:</label>
+        <input type="range" id="wind" min="0" max="100" value="30" oninput="document.getElementById('windV').textContent=this.value+'%'">
+        <span class="val" id="windV">30%</span>
+      </div>
+    </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const cv=document.getElementById('cycleCanvas'),cx=cv.getContext('2d');
+let W=900,H=500,t=0;
+
+// Water droplets in different phases
+let drops=[];
+function initDrops(){
+  drops=[];
+  // Ocean
+  for(let i=0;i<30;i++) drops.push({x:Math.random()*W*0.5+W*0.02,y:H*0.75+Math.random()*H*0.2,phase:'ocean',vx:0,vy:0,size:2+Math.random()*2});
+  // Evaporating
+  for(let i=0;i<10;i++) drops.push({x:Math.random()*W*0.4+W*0.05,y:H*0.5+Math.random()*H*0.2,phase:'evap',vx:0,vy:-0.5-Math.random(),size:1.5+Math.random()});
+}
+initDrops();
+
+function draw(){
+  t+=0.02;
+  const sun=+document.getElementById('sunTemp').value/100;
+  const wind=+document.getElementById('wind').value/100;
+  const dpr=window.devicePixelRatio||1;
+  W=cv.offsetWidth;H=500;
+  cv.width=W*dpr;cv.height=H*dpr;cx.scale(dpr,dpr);
+
+  // Sky gradient
+  const sky=cx.createLinearGradient(0,0,0,H*0.6);
+  sky.addColorStop(0,`rgba(${30+sun*40},${40+sun*30},${80+sun*50},1)`);
+  sky.addColorStop(1,`rgba(${60+sun*60},${80+sun*50},${120+sun*40},1)`);
+  cx.fillStyle=sky;cx.fillRect(0,0,W,H*0.6);
+
+  // Sun
+  const sunX=W*0.85,sunY=H*0.12,sunR=30+sun*15;
+  const sg=cx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*2.5);
+  sg.addColorStop(0,`rgba(255,${200+sun*55},${50+sun*50},${0.3+sun*0.4})`);
+  sg.addColorStop(1,'transparent');
+  cx.fillStyle=sg;cx.beginPath();cx.arc(sunX,sunY,sunR*2.5,0,Math.PI*2);cx.fill();
+  const sc=cx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR);
+  sc.addColorStop(0,'#fff9c4');sc.addColorStop(.7,'#ffcc02');sc.addColorStop(1,'#ff8f00');
+  cx.fillStyle=sc;cx.beginPath();cx.arc(sunX,sunY,sunR,0,Math.PI*2);cx.fill();
+  // Sun rays
+  for(let i=0;i<8;i++){
+    const a=t*0.5+i*Math.PI/4;
+    cx.beginPath();cx.moveTo(sunX+Math.cos(a)*(sunR+5),sunY+Math.sin(a)*(sunR+5));
+    cx.lineTo(sunX+Math.cos(a)*(sunR+15+sun*10),sunY+Math.sin(a)*(sunR+15+sun*10));
+    cx.strokeStyle=`rgba(255,204,2,${0.2+sun*0.3})`;cx.lineWidth=2;cx.stroke();
+  }
+
+  // Mountains
+  cx.beginPath();
+  cx.moveTo(W*0.3,H*0.6);cx.lineTo(W*0.5,H*0.3);cx.lineTo(W*0.65,H*0.45);
+  cx.lineTo(W*0.8,H*0.25);cx.lineTo(W,H*0.5);cx.lineTo(W,H*0.6);cx.closePath();
+  cx.fillStyle='#2d4a2d';cx.fill();
+  // Snow caps
+  cx.beginPath();cx.moveTo(W*0.47,H*0.33);cx.lineTo(W*0.5,H*0.3);cx.lineTo(W*0.53,H*0.34);cx.closePath();
+  cx.fillStyle='rgba(255,255,255,.4)';cx.fill();
+  cx.beginPath();cx.moveTo(W*0.77,H*0.28);cx.lineTo(W*0.8,H*0.25);cx.lineTo(W*0.83,H*0.29);cx.closePath();
+  cx.fill();
+
+  // Ground/river
+  cx.fillStyle='#1a3a1a';cx.fillRect(0,H*0.6,W,H*0.15);
+  // River
+  cx.beginPath();cx.moveTo(W*0.5,H*0.6);
+  cx.quadraticCurveTo(W*0.4,H*0.68,W*0.15,H*0.72);
+  cx.lineTo(W*0.12,H*0.75);
+  cx.quadraticCurveTo(W*0.38,H*0.71,W*0.52,H*0.62);
+  cx.closePath();
+  cx.fillStyle='rgba(79,195,247,.2)';cx.fill();
+
+  // Ocean
+  cx.fillStyle='rgba(13,71,161,.6)';
+  cx.fillRect(0,H*0.75,W*0.55,H*0.25);
+  // Ocean waves
+  cx.beginPath();cx.moveTo(0,H*0.75);
+  for(let x=0;x<W*0.55;x+=5){cx.lineTo(x,H*0.75+Math.sin(x*0.03+t*2)*3);}
+  cx.lineTo(W*0.55,H*0.75);cx.strokeStyle='rgba(79,195,247,.2)';cx.lineWidth=1;cx.stroke();
+
+  // Underground
+  cx.fillStyle='rgba(100,80,60,.3)';cx.fillRect(0,H*0.75,W,H*0.25);
+  // Water table
+  cx.fillStyle='rgba(79,195,247,.05)';cx.fillRect(W*0.3,H*0.85,W*0.65,H*0.15);
+  cx.fillStyle='rgba(255,255,255,.08)';cx.font='9px DM Sans';cx.textAlign='center';
+  cx.fillText('Falda acquifera',W*0.6,H*0.92);
+
+  // Clouds
+  const cloudDensity=sun*0.7;
+  for(let i=0;i<3;i++){
+    const cloudX=(W*0.15+i*W*0.25+t*wind*30)%(W+100)-50;
+    const cloudY=H*0.12+i*H*0.08;
+    const r=25+cloudDensity*15+i*5;
+    cx.fillStyle=`rgba(200,200,220,${0.15+cloudDensity*0.25})`;
+    cx.beginPath();cx.arc(cloudX,cloudY,r,0,Math.PI*2);cx.fill();
+    cx.beginPath();cx.arc(cloudX+r*0.7,cloudY-r*0.2,r*0.8,0,Math.PI*2);cx.fill();
+    cx.beginPath();cx.arc(cloudX-r*0.6,cloudY+r*0.1,r*0.7,0,Math.PI*2);cx.fill();
+    // Rain
+    if(cloudDensity>0.3){
+      for(let j=0;j<Math.floor(cloudDensity*5);j++){
+        const rx=cloudX-r+Math.random()*r*2;
+        const ry=cloudY+r+Math.random()*H*0.3;
+        cx.beginPath();cx.moveTo(rx,ry);cx.lineTo(rx-1,ry+8);
+        cx.strokeStyle=`rgba(79,195,247,${0.2+cloudDensity*0.3})`;cx.lineWidth=1;cx.stroke();
+      }
+    }
+  }
+
+  // Water particles
+  drops.forEach(d=>{
+    if(d.phase==='ocean'){
+      d.x+=Math.sin(t+d.x*0.01)*0.3;
+      d.y+=Math.cos(t+d.y*0.01)*0.2;
+      // Evaporate
+      if(Math.random()<sun*0.008){d.phase='evap';d.vy=-0.5-sun*2;}
+    } else if(d.phase==='evap'){
+      d.vy-=0.01*sun;d.vx+=wind*0.5*(Math.random()-0.3);
+      d.x+=d.vx;d.y+=d.vy;d.size=Math.max(1,d.size-0.002);
+      if(d.y<H*0.15){d.phase='cloud';d.vy=0;d.vx=wind*1.5;}
+    } else if(d.phase==='cloud'){
+      d.x+=d.vx;d.y+=Math.sin(t+d.x*0.01)*0.3;
+      if(d.x>W||Math.random()<0.003+sun*0.005){d.phase='rain';d.vy=1+Math.random()*2;d.vx=wind*0.3;}
+    } else if(d.phase==='rain'){
+      d.vy+=0.08;d.x+=d.vx;d.y+=d.vy;d.size=2+Math.random();
+      if(d.y>H*0.6){
+        if(d.x<W*0.55) d.phase='ocean';
+        else{d.phase='infiltrate';d.vy=0.3;d.vx=0;}
+        d.y=d.x<W*0.55?H*0.75+Math.random()*H*0.15:H*0.6;
+      }
+    } else if(d.phase==='infiltrate'){
+      d.y+=d.vy;d.vy*=0.99;
+      if(d.y>H*0.9){d.phase='groundwater';d.vx=-0.3-Math.random()*0.5;d.vy=0;}
+    } else if(d.phase==='groundwater'){
+      d.x+=d.vx;
+      if(d.x<W*0.15){d.phase='ocean';d.x=Math.random()*W*0.4;d.y=H*0.75+Math.random()*H*0.15;}
+    }
+
+    // Draw
+    const colors={ocean:'rgba(79,195,247,.4)',evap:'rgba(200,200,255,.5)',cloud:'rgba(255,255,255,.3)',rain:'rgba(79,195,247,.6)',infiltrate:'rgba(79,195,247,.3)',groundwater:'rgba(79,195,247,.2)'};
+    cx.beginPath();cx.arc(d.x,d.y,d.size,0,Math.PI*2);
+    cx.fillStyle=colors[d.phase]||'rgba(79,195,247,.3)';cx.fill();
+  });
+
+  // Respawn drops
+  if(drops.length<80&&Math.random()<0.05) drops.push({x:Math.random()*W*0.4+W*0.05,y:H*0.78+Math.random()*H*0.15,phase:'ocean',vx:0,vy:0,size:2+Math.random()*2});
+
+  // Labels
+  cx.fillStyle='rgba(255,255,255,.3)';cx.font='10px DM Sans';cx.textAlign='center';
+  cx.fillText('EVAPORAZIONE \u2191',W*0.15,H*0.55);
+  cx.fillText('CONDENSAZIONE',W*0.3,H*0.08);
+  cx.fillText('PRECIPITAZIONE \u2193',W*0.55,H*0.42);
+  cx.fillText('DEFLUSSO \u2192',W*0.35,H*0.65);
+  cx.fillText('INFILTRAZIONE \u2193',W*0.75,H*0.68);
+  cx.fillText('OCEANO',W*0.25,H*0.88);
+
+  // Readout
+  let rd=`<strong>Il ciclo dell'acqua</strong> \u00e8 alimentato dal Sole (${Math.round(sun*100)}% di intensit\u00e0). Pi\u00f9 sole = pi\u00f9 evaporazione = pi\u00f9 nuvole = pi\u00f9 pioggia. Il vento sposta le nuvole dall'oceano verso le montagne.`;
+  if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> L\'energia del Sole fa evaporare l\'acqua (calore latente: 2260 J/g). Il vapore sale perch\u00e9 \u00e8 pi\u00f9 leggero dell\'aria. Salendo si raffredda e condensa in nuvole. La gravit\u00e0 fa precipitare l\'acqua e scorrere verso il mare.';
+  if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Bilancio idrologico: P = E + R + \u0394S. Il tempo di residenza varia: ~9 giorni in atmosfera, ~2.500 anni negli oceani, ~10.000 anni nelle calotte glaciali. L\'evapotraspirazione (Penman-Monteith) accoppia il ciclo idrologico a quello energetico tramite il calore latente.';
+  document.getElementById('readout').innerHTML=rd;
+
+  requestAnimationFrame(draw);
+}
+setTimeout(draw,150);
+</script>
+</body>
+</html>

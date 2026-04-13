@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Cellula Esplorabile — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n3); }
+.cell-container { display:grid; grid-template-columns:1fr 280px; gap:14px; }
+@media(max-width:700px){ .cell-container{grid-template-columns:1fr;} }
+.cell-view { position:relative; background:#060a14; border:1px solid var(--n3border); border-radius:var(--radius-lg); overflow:hidden; min-height:420px; }
+#cellCanvas { display:block; width:100%; height:100%; cursor:pointer; }
+.cell-info { display:flex; flex-direction:column; gap:8px; }
+.cell-type-btns { display:flex; gap:6px; margin-bottom:8px; }
+.ct-btn { flex:1; padding:8px; border-radius:8px; border:1px solid var(--n3border); background:rgba(102,187,106,.05); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.72rem; font-weight:600; text-align:center; cursor:pointer; transition:var(--transition); }
+.ct-btn:hover { border-color:var(--n3); color:var(--n3); }
+.ct-btn.active { background:rgba(102,187,106,.15); border-color:var(--n3); color:var(--n3); }
+.organelle-card {
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius); padding:14px; transition:var(--transition);
+}
+.organelle-card.active { border-color:var(--n3); background:rgba(102,187,106,.06); }
+.organelle-card h4 { font-size:.85rem; font-weight:600; color:var(--n3); margin-bottom:4px; }
+.organelle-card p { font-size:.75rem; color:rgba(255,255,255,.5); line-height:1.5; }
+.organelle-card .fun { font-size:.7rem; color:rgba(255,255,255,.35); margin-top:6px; font-style:italic; }
+.legend-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:8px; }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:.65rem; color:rgba(255,255,255,.4); }
+.leg-dot { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>La Cellula Esplorabile</h1><div class="subtitle">Esseri viventi e corpo umano &middot; Nucleo 3</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1);render()">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2);render()">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3);render()">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>La <span class="iper" data-iper="cellula">cellula</span></h2>
+    <p>Clicca su ogni parte della cellula per scoprire come funziona. Passa tra cellula animale e vegetale per vedere le differenze. Ogni organello ha una funzione precisa!</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Riconoscere le parti principali del corpo umano e degli esseri viventi</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Osservare e descrivere struttura e funzionamento della cellula, animali e vegetali</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Comprendere <span class="iper" data-iper="fotosintesi">fotosintesi</span> e sua importanza</div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>Esplora la cellula</h2>
+    <div class="cell-container">
+      <div class="cell-view"><canvas id="cellCanvas"></canvas></div>
+      <div class="cell-info">
+        <div class="cell-type-btns">
+          <button class="ct-btn active" id="btnAnimal" onclick="setCellType('animal')">Animale</button>
+          <button class="ct-btn" id="btnPlant" onclick="setCellType('plant')">Vegetale</button>
+        </div>
+        <div id="organelleInfo">
+          <div class="organelle-card active">
+            <h4>Clicca su un organello</h4>
+            <p>Tocca una parte della cellula per scoprire il suo nome e la sua funzione.</p>
+          </div>
+        </div>
+        <div class="legend-grid" id="legend"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const cv=document.getElementById('cellCanvas'),cx=cv.getContext('2d');
+let cellType='animal', selectedOrg=null;
+
+const ORGANELLES={
+  membrana:{name:'Membrana cellulare',color:'#66bb6a',levels:{
+    1:'Il confine della cellula, come la pelle del tuo corpo. Decide cosa entra e cosa esce.',
+    2:'Doppio strato di fosfolipidi con proteine. \u00c8 semipermeabile: lascia passare alcune sostanze e ne blocca altre. Protegge la cellula e regola gli scambi.',
+    3:'Modello a mosaico fluido (Singer-Nicolson). Trasporto passivo (diffusione, osmosi) e attivo (pompe ioniche, con ATP). Proteine integrali e periferiche. Colesterolo modula fluidit\u00e0.'}},
+  nucleo:{name:'Nucleo',color:'#7e57c2',levels:{
+    1:'Il "cervello" della cellula: contiene le istruzioni (DNA) per far funzionare tutto.',
+    2:'Circondato da doppia membrana (involucro nucleare) con pori. Contiene il DNA organizzato in cromosomi. Il nucleolo produce i ribosomi. Controlla tutte le attivit\u00e0 cellulari.',
+    3:'Il DNA (2m per cellula umana!) \u00e8 organizzato in cromatina, compattata in cromosomi durante la divisione. La trascrizione (DNA\u2192mRNA) avviene qui. L\'mRNA esce dai pori nucleari per la traduzione nel citoplasma.'}},
+  mitocondrio:{name:'Mitocondri',color:'#ef5350',levels:{
+    1:'Le "centrali energetiche" della cellula: trasformano il cibo in energia!',
+    2:'Hanno doppia membrana: quella interna \u00e8 ripiegata (creste) per aumentare la superficie. Qui avviene la respirazione cellulare: glucosio + O\u2082 \u2192 CO\u2082 + H\u2082O + energia (ATP).',
+    3:'Matrice: ciclo di Krebs. Membrana interna: catena di trasporto elettronico e ATP sintasi (fosforilazione ossidativa). Producono ~36 ATP per glucosio. Hanno DNA proprio (origine endosimbiotica).'}},
+  re:{name:'Reticolo endoplasmatico',color:'#4fc3f7',levels:{
+    1:'Un sistema di "strade" dentro la cellula per trasportare materiali.',
+    2:'RE rugoso (con ribosomi): produce proteine. RE liscio: produce lipidi e detossifica. \u00c8 collegato alla membrana nucleare e all\'apparato di Golgi.',
+    3:'Il RE rugoso \u00e8 sede della traduzione co-traduzionale: i ribosomi legati sintetizzano proteine che entrano nel lume per modifiche post-traduzionali (glicosilazione, folding). Il RE liscio contiene enzimi per sintesi lipidica, metabolismo del Ca\u00b2\u207a e detossificazione (citocromo P450).'}},
+  golgi:{name:'Apparato di Golgi',color:'#ffa726',levels:{
+    1:'L\'"ufficio postale" della cellula: riceve, impacchetta e spedisce materiali dove servono.',
+    2:'Serie di sacche appiattite (cisterne). Riceve proteine dal RE, le modifica (aggiunge zuccheri), le smista e le impacchetta in vescicole per la destinazione finale.',
+    3:'Polarizzato: faccia cis (riceve dal RE) e trans (spedisce). Modifiche: O-glicosilazione, fosforilazione, proteolisi. Il traffico vescicolare usa proteine SNARE per il riconoscimento del bersaglio.'}},
+  ribosomi:{name:'Ribosomi',color:'#e0e0e0',levels:{
+    1:'Le "fabbriche" che producono le proteine, i materiali da costruzione della cellula.',
+    2:'Composti da RNA ribosomiale e proteine. Leggono le istruzioni dell\'mRNA e assemblano le proteine aminoacido per aminoacido. Possono essere liberi nel citoplasma o legati al RE.',
+    3:'Composti da due subunit\u00e0: grande (60S) e piccola (40S) negli eucarioti. La traduzione avviene in tre fasi: iniziazione (complesso con mRNA e tRNA-Met), allungamento (peptidil-transferasi), terminazione (codoni stop).'}},
+  // Plant-only
+  parete:{name:'Parete cellulare',color:'#8d6e63',plant:true,levels:{
+    1:'Un muro rigido che circonda la cellula vegetale, la rende forte e la protegge. Per questo le piante stanno dritte!',
+    2:'Composta principalmente da cellulosa (polimero del glucosio). D\u00e0 forma e sostegno. Le cellule animali non ce l\'hanno, per questo gli animali sono flessibili.',
+    3:'Parete primaria: cellulosa, emicellulosa, pectina. Parete secondaria (in cellule differenziate): lignina per rigidit\u00e0. I plasmodesmi attraversano la parete per la comunicazione intercellulare.'}},
+  cloroplasto:{name:'Cloroplasti',color:'#4caf50',plant:true,levels:{
+    1:'Contengono la clorofilla verde e fanno la fotosintesi: trasformano luce + acqua + CO\u2082 in cibo e ossigeno!',
+    2:'Doppia membrana con tilacoidi interni (dove avviene la fase luminosa) e stroma (dove avviene il ciclo di Calvin). La clorofilla cattura la luce solare.',
+    3:'Fase luminosa nei tilacoidi: fotosistemi I e II, catena di trasporto, fotolisi H\u2082O, sintesi ATP e NADPH. Ciclo di Calvin nello stroma: RuBisCO fissa CO\u2082. Origine endosimbiotica (DNA proprio).'}},
+  vacuolo:{name:'Vacuolo centrale',color:'#26c6da',plant:true,levels:{
+    1:'Una grande "bolla" piena d\'acqua che tiene la cellula gonfia e rigida, come un palloncino.',
+    2:'Occupa fino all\'80% del volume cellulare. Contiene acqua, sali, zuccheri e pigmenti. La pressione di turgore mantiene la pianta eretta. Quando perde acqua, la pianta appassisce.',
+    3:'Delimitato dal tonoplasto (membrana). Funzioni: riserva idrica e nutritiva, regolazione del pH, accumulo di metaboliti secondari (tannini, alcaloidi come difesa), mantenimento della pressione osmotica (\u03c0 = iMRT).'}},
+};
+
+function setCellType(t){
+  cellType=t;
+  selectedOrg=null;
+  document.getElementById('btnAnimal').classList.toggle('active',t==='animal');
+  document.getElementById('btnPlant').classList.toggle('active',t==='plant');
+  updateInfo();render();
+}
+
+function updateInfo(){
+  const info=document.getElementById('organelleInfo');
+  if(!selectedOrg){
+    info.innerHTML='<div class="organelle-card active"><h4>Clicca su un organello</h4><p>Tocca una parte della cellula per scoprire il suo nome e la sua funzione.</p></div>';
+    return;
+  }
+  const o=ORGANELLES[selectedOrg];
+  info.innerHTML=`<div class="organelle-card active"><h4>${o.name}</h4><p>${o.levels[currentLevel]}</p>${currentLevel>=2?'<div class="fun">Colore: <span style="color:'+o.color+'">'+o.color+'</span></div>':''}</div>`;
+}
+
+// Layout
+function getPositions(W,H){
+  const cx=W/2, cy=H/2, r=Math.min(W,H)*0.38;
+  const pos={
+    nucleo:{x:cx,y:cy,r:r*0.28},
+    mitocondrio:{x:cx+r*0.55,y:cy-r*0.3,r:r*0.13},
+    re:{x:cx-r*0.4,y:cy-r*0.35,r:r*0.18},
+    golgi:{x:cx+r*0.35,y:cy+r*0.4,r:r*0.14},
+    ribosomi:{x:cx-r*0.5,y:cy+r*0.3,r:r*0.08},
+    membrana:{x:cx,y:cy,r:r},
+  };
+  if(cellType==='plant'){
+    pos.cloroplasto={x:cx-r*0.55,y:cy+r*0.05,r:r*0.14};
+    pos.vacuolo={x:cx+r*0.1,y:cy+r*0.15,r:r*0.22};
+    pos.parete={x:cx,y:cy,r:r*1.08};
+  }
+  return pos;
+}
+
+function render(){
+  const rect=cv.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  const W=rect.width, H=420;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cx.scale(dpr,dpr);
+  cx.fillStyle='#050810'; cx.fillRect(0,0,W,H);
+
+  const pos=getPositions(W,H);
+
+  // Plant wall
+  if(cellType==='plant'&&pos.parete){
+    cx.strokeStyle=selectedOrg==='parete'?'rgba(141,110,99,.6)':'rgba(141,110,99,.25)';
+    cx.lineWidth=8;cx.setLineDash([12,6]);
+    cx.beginPath();cx.rect(W/2-pos.parete.r,H/2-pos.parete.r*0.85,pos.parete.r*2,pos.parete.r*1.7);cx.stroke();
+    cx.setLineDash([]);
+  }
+
+  // Membrane
+  const mem=pos.membrana;
+  cx.beginPath();
+  if(cellType==='plant') cx.rect(mem.x-mem.r*0.95,mem.y-mem.r*0.8,mem.r*1.9,mem.r*1.6);
+  else cx.ellipse(mem.x,mem.y,mem.r,mem.r*0.8,0,0,Math.PI*2);
+  cx.fillStyle='rgba(102,187,106,.04)';cx.fill();
+  cx.strokeStyle=selectedOrg==='membrana'?'rgba(102,187,106,.6)':'rgba(102,187,106,.2)';
+  cx.lineWidth=3;cx.stroke();
+
+  // Cytoplasm dots
+  for(let i=0;i<30;i++){
+    const dx=(Math.random()-.5)*mem.r*1.6, dy=(Math.random()-.5)*mem.r*1.2;
+    cx.beginPath();cx.arc(mem.x+dx,mem.y+dy,1,0,Math.PI*2);
+    cx.fillStyle='rgba(255,255,255,.04)';cx.fill();
+  }
+
+  // Plant organelles
+  if(cellType==='plant'){
+    // Vacuolo
+    if(pos.vacuolo){const v=pos.vacuolo;cx.beginPath();cx.ellipse(v.x,v.y,v.r*1.3,v.r,0,0,Math.PI*2);cx.fillStyle=selectedOrg==='vacuolo'?'rgba(38,198,218,.15)':'rgba(38,198,218,.06)';cx.fill();cx.strokeStyle=selectedOrg==='vacuolo'?'rgba(38,198,218,.5)':'rgba(38,198,218,.15)';cx.lineWidth=2;cx.stroke();}
+    // Cloroplasti
+    if(pos.cloroplasto){const c=pos.cloroplasto;for(let i=0;i<3;i++){const ox=c.x+i*c.r*0.8-c.r*0.8,oy=c.y+(i%2)*c.r*0.6;cx.beginPath();cx.ellipse(ox,oy,c.r,c.r*0.5,0.2*i,0,Math.PI*2);cx.fillStyle=selectedOrg==='cloroplasto'?'rgba(76,175,80,.3)':'rgba(76,175,80,.12)';cx.fill();cx.strokeStyle=selectedOrg==='cloroplasto'?'rgba(76,175,80,.6)':'rgba(76,175,80,.2)';cx.lineWidth=1.5;cx.stroke();}}
+  }
+
+  // RE
+  const re=pos.re;
+  cx.strokeStyle=selectedOrg==='re'?'rgba(79,195,247,.5)':'rgba(79,195,247,.15)';cx.lineWidth=1.5;
+  for(let i=0;i<5;i++){cx.beginPath();cx.ellipse(re.x,re.y+i*8-16,re.r*(1-i*0.1),4+i*2,0.1,0,Math.PI*2);cx.stroke();}
+
+  // Golgi
+  const go=pos.golgi;
+  cx.strokeStyle=selectedOrg==='golgi'?'rgba(255,167,38,.5)':'rgba(255,167,38,.15)';cx.lineWidth=2;
+  for(let i=0;i<4;i++){cx.beginPath();cx.arc(go.x,go.y+i*7-10,go.r-i*3,0.5,Math.PI-0.5);cx.stroke();}
+
+  // Mitocondri
+  const mt=pos.mitocondrio;
+  for(let i=0;i<2;i++){
+    const ox=mt.x+i*mt.r*1.2-mt.r*0.6, oy=mt.y+i*mt.r*0.8;
+    cx.beginPath();cx.ellipse(ox,oy,mt.r,mt.r*0.5,0.3+i*0.5,0,Math.PI*2);
+    cx.fillStyle=selectedOrg==='mitocondrio'?'rgba(239,83,80,.2)':'rgba(239,83,80,.08)';cx.fill();
+    cx.strokeStyle=selectedOrg==='mitocondrio'?'rgba(239,83,80,.5)':'rgba(239,83,80,.15)';cx.lineWidth=1.5;cx.stroke();
+    // Inner folds
+    cx.strokeStyle=selectedOrg==='mitocondrio'?'rgba(239,83,80,.3)':'rgba(239,83,80,.08)';cx.lineWidth=1;
+    for(let j=0;j<3;j++){cx.beginPath();cx.moveTo(ox-mt.r*0.5+j*mt.r*0.4,oy-mt.r*0.3);cx.lineTo(ox-mt.r*0.3+j*mt.r*0.3,oy+mt.r*0.3);cx.stroke();}
+  }
+
+  // Ribosomi
+  const ri=pos.ribosomi;
+  for(let i=0;i<8;i++){
+    const rx=ri.x+(Math.random()-.5)*ri.r*4, ry=ri.y+(Math.random()-.5)*ri.r*4;
+    cx.beginPath();cx.arc(rx,ry,2.5,0,Math.PI*2);
+    cx.fillStyle=selectedOrg==='ribosomi'?'rgba(224,224,224,.5)':'rgba(224,224,224,.2)';cx.fill();
+  }
+
+  // Nucleo
+  const nu=pos.nucleo;
+  cx.beginPath();cx.arc(nu.x,nu.y,nu.r,0,Math.PI*2);
+  cx.fillStyle=selectedOrg==='nucleo'?'rgba(126,87,194,.15)':'rgba(126,87,194,.06)';cx.fill();
+  cx.strokeStyle=selectedOrg==='nucleo'?'rgba(126,87,194,.6)':'rgba(126,87,194,.2)';cx.lineWidth=2.5;cx.stroke();
+  // Nucleolus
+  cx.beginPath();cx.arc(nu.x+nu.r*0.2,nu.y-nu.r*0.15,nu.r*0.25,0,Math.PI*2);
+  cx.fillStyle=selectedOrg==='nucleo'?'rgba(126,87,194,.3)':'rgba(126,87,194,.1)';cx.fill();
+  // DNA strands hint
+  cx.strokeStyle=selectedOrg==='nucleo'?'rgba(126,87,194,.3)':'rgba(126,87,194,.08)';cx.lineWidth=1;
+  for(let i=0;i<3;i++){cx.beginPath();const a=i*2.1;cx.arc(nu.x,nu.y,nu.r*0.6,a,a+1.5);cx.stroke();}
+
+  // Labels
+  cx.font='10px DM Sans';cx.textAlign='center';
+  Object.entries(pos).forEach(([key,p])=>{
+    if(key==='membrana'||key==='parete') return;
+    const o=ORGANELLES[key]; if(!o) return;
+    if(o.plant && cellType!=='plant') return;
+    cx.fillStyle=selectedOrg===key?o.color:'rgba(255,255,255,.25)';
+    cx.fillText(o.name,p.x,p.y+(p.r||20)+14);
+  });
+
+  // Build legend
+  const legend=document.getElementById('legend');
+  let lhtml='';
+  Object.entries(ORGANELLES).forEach(([k,o])=>{
+    if(o.plant&&cellType!=='plant') return;
+    lhtml+=`<div class="leg-item"><div class="leg-dot" style="background:${o.color}"></div>${o.name}</div>`;
+  });
+  legend.innerHTML=lhtml;
+}
+
+// Click detection
+cv.addEventListener('click',e=>{
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)/rect.width*rect.width;
+  const my=(e.clientY-rect.top)/rect.height*420;
+  const pos=getPositions(rect.width,420);
+  selectedOrg=null;
+  // Check each organelle (reverse order for priority)
+  const keys=Object.keys(pos).reverse();
+  for(const key of keys){
+    const p=pos[key]; const o=ORGANELLES[key]; if(!o) continue;
+    if(o.plant&&cellType!=='plant') continue;
+    const dx=mx-p.x, dy=my-p.y;
+    const hitR=(p.r||20)*1.2;
+    if(dx*dx+dy*dy < hitR*hitR){ selectedOrg=key; break; }
+  }
+  updateInfo(); render();
+});
+
+setTimeout(render,150);
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>

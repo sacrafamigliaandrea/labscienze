@@ -9,6 +9,7 @@
 <style>
 /* === INDEX-SPECIFIC === */
 .hero { text-align: center; padding: 50px 20px 30px; }
+.hero-logo { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 16px; border: 2px solid rgba(255,255,255,.1); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
 .hero h1 {
   font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
   background: linear-gradient(135deg, var(--space-accent) 0%, var(--corona) 50%, var(--space-accent) 100%);
@@ -91,8 +92,9 @@
 .nc-exp-item:hover .nc-exp-arrow { color: var(--nc, var(--space-accent)); }
 
 /* FOOTER */
-.footer { text-align: center; padding: 40px 20px 30px; }
-.footer p { font-size: .7rem; color: rgba(255,255,255,.2); }
+.footer { text-align: center; padding: 40px 20px 30px; border-top: 1px solid rgba(255,255,255,.04); margin-top: 20px; }
+.footer p { font-size: .68rem; color: rgba(255,255,255,.25); margin-bottom: 4px; }
+.footer p strong { color: rgba(255,255,255,.4); }
 .footer a { color: rgba(79,195,247,.4); }
 </style>
 </head>
@@ -103,9 +105,9 @@
 <div class="app-container">
   <!-- HERO -->
   <div class="hero">
+    <img src="logo.jpg" alt="Scuola Sacra Famiglia" class="hero-logo">
     <h1>Laboratorio Scientifico</h1>
     <div class="subtitle">Esplora &middot; sperimenta &middot; scopri</div>
-    <div class="brand-tag">SacraFamiglia education</div>
     <p class="hero-desc">
       Simulazioni interattive ed esperimenti virtuali dalla 3&ordf; Primaria alla 3&ordf; Secondaria.<br>
       Scegli un nucleo tematico e inizia a esplorare. Ogni esperimento ha tre livelli di profondit&agrave;: tu decidi fin dove andare.
@@ -181,19 +183,19 @@
         <span class="nc-tag">Onde</span>
         <span class="nc-tag">Energia</span>
       </div>
-      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-badge ready">Disponibile</div>
       <div class="nc-experiments">
-        <a href="n2-leve.html" class="nc-exp-item disabled">
+        <a href="n2-leve.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Laboratorio leve</h5><p>Bilancia, leve di 1°-2°-3° genere, macchine semplici</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n2-circuiti.html" class="nc-exp-item disabled">
+        <a href="n2-circuiti.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Costruttore circuiti</h5><p>Batterie, lampadine, interruttori, legge di Ohm</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n2-onde.html" class="nc-exp-item disabled">
+        <a href="n2-onde.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Simulatore onde</h5><p>Suono, luce, interferenza, diffrazione</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
@@ -219,19 +221,19 @@
         <span class="nc-tag">Genetica</span>
         <span class="nc-tag">Ecosistemi</span>
       </div>
-      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-badge ready">Disponibile</div>
       <div class="nc-experiments">
-        <a href="n3-cellula.html" class="nc-exp-item disabled">
+        <a href="n3-cellula.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>La cellula esplorabile</h5><p>Zoom progressivo, organelli, animale vs vegetale</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n3-ecosistema.html" class="nc-exp-item disabled">
+        <a href="n3-ecosistema.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Simulatore ecosistema</h5><p>Catena alimentare, popolazione, biodiversit&agrave;</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n3-genetica.html" class="nc-exp-item disabled">
+        <a href="n3-genetica.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Incroci mendeliani</h5><p>Costruttore di incroci, quadrato di Punnett</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
@@ -257,19 +259,19 @@
         <span class="nc-tag">Clima</span>
         <span class="nc-tag">Sostenibilit&agrave;</span>
       </div>
-      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-badge ready">Disponibile</div>
       <div class="nc-experiments">
-        <a href="n4-ciclo-acqua.html" class="nc-exp-item disabled">
+        <a href="n4-ciclo-acqua.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Ciclo dell'acqua</h5><p>Evaporazione, nuvole, precipitazione, infiltrazione</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n4-vulcano.html" class="nc-exp-item disabled">
+        <a href="n4-vulcano.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Simulatore vulcano</h5><p>Sezione della Terra, tipi di eruzione, tettonica</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n4-clima.html" class="nc-exp-item disabled">
+        <a href="n4-clima.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Laboratorio clima</h5><p>Effetto serra, bilancio energetico, proiezioni</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
@@ -302,12 +304,12 @@
           <div class="nc-exp-text"><h5>Missione Artemis II</h5><p>Simulatore orbitale, timeline, esperimenti, foto NASA</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n5-sistema-solare.html" class="nc-exp-item disabled">
+        <a href="n5-sistema-solare.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Sistema solare navigabile</h5><p>Orbite in scala, confronto dimensioni, dati planetari</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="n5-giorno-notte.html" class="nc-exp-item disabled">
+        <a href="n5-giorno-notte.html" class="nc-exp-item ">
           <div class="nc-exp-dot"></div>
           <div class="nc-exp-text"><h5>Giorno, notte e stagioni</h5><p>Rotazione, inclinazione assiale, fasi lunari</p></div>
           <span class="nc-exp-arrow">&rsaquo;</span>
@@ -318,7 +320,11 @@
   </div>
 
   <div class="footer">
-    <p>Laboratorio Scientifico &mdash; SacraFamiglia education &mdash; Nuove Indicazioni Nazionali 2025</p>
+    <div class="footer-logo"><img src="logo.jpg" alt="Sacra Famiglia" style="width:60px;height:60px;border-radius:50%;opacity:.5;margin-bottom:10px"></div>
+    <p><strong>Scuola Sacra Famiglia</strong> &mdash; Orzinuovi (BS)</p>
+    <p>Animatore Digitale: <strong>Andrea Cerioli</strong></p>
+    <p>Percorso allineato alle Nuove Indicazioni Nazionali 2025 &mdash; Scienze, primo ciclo di istruzione</p>
+    <p style="margin-top:10px">&copy; 2025 Scuola Sacra Famiglia di Orzinuovi. Tutti i diritti riservati.</p>
   </div>
 </div>
 
@@ -326,19 +332,18 @@
 <script>
 function toggleNucleo(card){
   const wasExpanded = card.classList.contains('expanded');
-  // Chiudi tutti
   document.querySelectorAll('.nucleo-card').forEach(c => c.classList.remove('expanded'));
-  // Apri questo se non era aperto
   if(!wasExpanded) card.classList.add('expanded');
 }
 
-// Passa il livello ai link
-document.querySelectorAll('.nc-exp-item:not(.disabled)').forEach(a => {
-  a.addEventListener('click', function(e){
-    e.stopPropagation();
-    const url = new URL(this.href, window.location);
-    url.searchParams.set('livello', currentLevel);
-    this.href = url.toString();
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.nc-exp-item').forEach(a => {
+    a.addEventListener('click', function(e){
+      e.stopPropagation();
+      const url = new URL(this.href, window.location);
+      url.searchParams.set('livello', typeof currentLevel !== 'undefined' ? currentLevel : 1);
+      this.href = url.toString();
+    });
   });
 });
 </script>

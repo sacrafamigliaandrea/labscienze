@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulatore Ecosistema — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n3); }
+.sim-box { border-radius:var(--radius-lg); overflow:hidden; background:#060a14; border:1px solid var(--n3border); }
+#ecoCanvas { display:block; width:100%; }
+.ctrl-row { display:flex; flex-wrap:wrap; gap:10px; padding:12px 16px; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.04); align-items:center; }
+.ctrl-row label { font-size:.72rem; color:rgba(255,255,255,.4); }
+.ctrl-row input[type="range"] { width:120px; accent-color:var(--n3); }
+.ctrl-row .val { color:var(--n3); font-size:.82rem; font-weight:600; min-width:40px; }
+.pop-strip { display:flex; gap:16px; padding:10px 16px; background:rgba(0,0,0,.2); border-top:1px solid rgba(255,255,255,.03); flex-wrap:wrap; }
+.pop-item { display:flex; align-items:center; gap:6px; }
+.pop-dot { width:10px; height:10px; border-radius:50%; }
+.pop-label { font-size:.72rem; color:rgba(255,255,255,.5); }
+.pop-num { font-size:.88rem; font-weight:700; color:var(--n3); }
+.graph-box { height:120px; padding:8px 16px; background:rgba(0,0,0,.15); border-top:1px solid rgba(255,255,255,.02); position:relative; }
+#graphCanvas { width:100%; height:100%; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>Simulatore Ecosistema</h1><div class="subtitle">Esseri viventi e corpo umano &middot; Nucleo 3</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>L'<span class="iper" data-iper="ecosistema">ecosistema</span></h2>
+    <p>Osserva come piante, erbivori e predatori interagiscono. Cambia le condizioni ambientali e guarda cosa succede alla popolazione. Cosa succede se togli i predatori?</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Riconoscere interazioni tra esseri viventi e ambiente</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Osservare <span class="iper" data-iper="ecosistema">ecosistemi</span> naturali: produttori, consumatori, decompositori</div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>Il prato virtuale</h2>
+    <div class="sim-box">
+      <canvas id="ecoCanvas" width="800" height="350"></canvas>
+      <div class="pop-strip">
+        <div class="pop-item"><div class="pop-dot" style="background:#66bb6a"></div><span class="pop-label">Piante</span><span class="pop-num" id="popPlants">0</span></div>
+        <div class="pop-item"><div class="pop-dot" style="background:#4fc3f7"></div><span class="pop-label">Erbivori</span><span class="pop-num" id="popHerb">0</span></div>
+        <div class="pop-item"><div class="pop-dot" style="background:#ef5350"></div><span class="pop-label">Predatori</span><span class="pop-num" id="popPred">0</span></div>
+        <div class="pop-item"><span class="pop-label">Giorno:</span><span class="pop-num" id="dayNum">0</span></div>
+      </div>
+      <div class="graph-box"><canvas id="graphCanvas"></canvas></div>
+      <div class="ctrl-row">
+        <label>Piante iniziali:</label><input type="range" id="sPlants" min="10" max="80" value="40"><span class="val" id="vPlants">40</span>
+        <label>Erbivori:</label><input type="range" id="sHerb" min="5" max="40" value="15"><span class="val" id="vHerb">15</span>
+        <label>Predatori:</label><input type="range" id="sPred" min="0" max="15" value="4"><span class="val" id="vPred">4</span>
+        <button class="sim-btn" onclick="resetEco()">Ricomincia</button>
+        <button class="sim-btn" id="btnPause" onclick="togglePause()">Pausa</button>
+      </div>
+    </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const cv=document.getElementById('ecoCanvas'),cx=cv.getContext('2d');
+const gcv=document.getElementById('graphCanvas'),gcx=gcv.getContext('2d');
+let W=800,H=350,paused=false,day=0;
+
+// Entities
+let plants=[], herbs=[], preds=[];
+let history={p:[],h:[],pr:[]};
+
+function rand(a,b){return a+Math.random()*(b-a)}
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)}
+
+function resetEco(){
+  const np=+document.getElementById('sPlants').value;
+  const nh=+document.getElementById('sHerb').value;
+  const npd=+document.getElementById('sPred').value;
+  document.getElementById('vPlants').textContent=np;
+  document.getElementById('vHerb').textContent=nh;
+  document.getElementById('vPred').textContent=npd;
+  plants=[];herbs=[];preds=[];history={p:[],h:[],pr:[]};day=0;
+  for(let i=0;i<np;i++) plants.push({x:rand(20,W-20),y:rand(20,H-20),energy:50+rand(0,50),age:0});
+  for(let i=0;i<nh;i++) herbs.push({x:rand(20,W-20),y:rand(20,H-20),energy:80,age:0,vx:rand(-1,1),vy:rand(-1,1)});
+  for(let i=0;i<npd;i++) preds.push({x:rand(20,W-20),y:rand(20,H-20),energy:120,age:0,vx:rand(-1,1),vy:rand(-1,1)});
+}
+
+function togglePause(){paused=!paused;document.getElementById('btnPause').textContent=paused?'Riprendi':'Pausa';}
+
+// Sliders update labels
+['sPlants','sHerb','sPred'].forEach(id=>{
+  document.getElementById(id).oninput=function(){
+    document.getElementById('v'+id.slice(1).charAt(0).toUpperCase()+id.slice(2)).textContent=this.value;
+  };
+});
+
+function step(){
+  if(paused) return;
+  day++;
+
+  // Plants grow
+  if(plants.length<120 && Math.random()<0.08) plants.push({x:rand(20,W-20),y:rand(20,H-20),energy:30,age:0});
+  plants.forEach(p=>{p.age++;p.energy=Math.min(100,p.energy+0.3);});
+
+  // Herbivores
+  herbs.forEach(h=>{
+    h.age++;h.energy-=0.3;
+    // Move toward nearest plant
+    let nearest=null,nd=Infinity;
+    plants.forEach(p=>{const d=dist(h,p);if(d<nd){nd=d;nearest=p;}});
+    if(nearest){
+      const dx=nearest.x-h.x,dy=nearest.y-h.y,d=Math.sqrt(dx*dx+dy*dy);
+      h.vx+=(dx/d)*0.15; h.vy+=(dy/d)*0.15;
+    }
+    // Flee from predators
+    preds.forEach(pr=>{const d=dist(h,pr);if(d<80){h.vx-=(pr.x-h.x)/d*0.3;h.vy-=(pr.y-h.y)/d*0.3;}});
+    h.vx*=0.95;h.vy*=0.95;
+    h.x+=h.vx;h.y+=h.vy;
+    h.x=Math.max(5,Math.min(W-5,h.x));h.y=Math.max(5,Math.min(H-5,h.y));
+    // Eat
+    if(nearest&&nd<15){nearest.energy-=40;h.energy+=25;if(nearest.energy<=0)plants.splice(plants.indexOf(nearest),1);}
+    // Reproduce
+    if(h.energy>140&&herbs.length<60){h.energy-=60;herbs.push({x:h.x+rand(-10,10),y:h.y+rand(-10,10),energy:60,age:0,vx:rand(-1,1),vy:rand(-1,1)});}
+  });
+  herbs=herbs.filter(h=>h.energy>0);
+
+  // Predators
+  preds.forEach(pr=>{
+    pr.age++;pr.energy-=0.4;
+    let nearest=null,nd=Infinity;
+    herbs.forEach(h=>{const d=dist(pr,h);if(d<nd){nd=d;nearest=h;}});
+    if(nearest){
+      const dx=nearest.x-pr.x,dy=nearest.y-pr.y,d=Math.sqrt(dx*dx+dy*dy);
+      pr.vx+=(dx/d)*0.12;pr.vy+=(dy/d)*0.12;
+    }
+    pr.vx*=0.94;pr.vy*=0.94;
+    pr.x+=pr.vx;pr.y+=pr.vy;
+    pr.x=Math.max(5,Math.min(W-5,pr.x));pr.y=Math.max(5,Math.min(H-5,pr.y));
+    if(nearest&&nd<12){nearest.energy=0;pr.energy+=40;}
+    if(pr.energy>160&&preds.length<20){pr.energy-=80;preds.push({x:pr.x+rand(-10,10),y:pr.y+rand(-10,10),energy:80,age:0,vx:rand(-1,1),vy:rand(-1,1)});}
+  });
+  preds=preds.filter(p=>p.energy>0);
+
+  // History
+  if(day%3===0){history.p.push(plants.length);history.h.push(herbs.length);history.pr.push(preds.length);if(history.p.length>200){history.p.shift();history.h.shift();history.pr.shift();}}
+}
+
+function draw(){
+  step();
+  const dpr=window.devicePixelRatio||1;
+  W=cv.offsetWidth;H=350;
+  cv.width=W*dpr;cv.height=H*dpr;cx.scale(dpr,dpr);
+
+  // Background gradient (grass)
+  const bg=cx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a1a0a');bg.addColorStop(1,'#081408');
+  cx.fillStyle=bg;cx.fillRect(0,0,W,H);
+
+  // Plants
+  plants.forEach(p=>{
+    const sz=3+p.energy*0.04;
+    cx.beginPath();cx.arc(p.x,p.y,sz,0,Math.PI*2);
+    cx.fillStyle=`rgba(102,187,106,${0.3+p.energy*0.005})`;cx.fill();
+  });
+  // Herbivores
+  herbs.forEach(h=>{
+    cx.beginPath();cx.arc(h.x,h.y,5,0,Math.PI*2);
+    cx.fillStyle='rgba(79,195,247,.7)';cx.fill();
+    cx.beginPath();cx.arc(h.x,h.y,8,0,Math.PI*2);
+    cx.fillStyle='rgba(79,195,247,.1)';cx.fill();
+  });
+  // Predators
+  preds.forEach(p=>{
+    cx.beginPath();cx.moveTo(p.x,p.y-7);cx.lineTo(p.x-5,p.y+5);cx.lineTo(p.x+5,p.y+5);cx.closePath();
+    cx.fillStyle='rgba(239,83,80,.7)';cx.fill();
+    cx.beginPath();cx.arc(p.x,p.y,10,0,Math.PI*2);
+    cx.fillStyle='rgba(239,83,80,.08)';cx.fill();
+  });
+
+  // Labels
+  document.getElementById('popPlants').textContent=plants.length;
+  document.getElementById('popHerb').textContent=herbs.length;
+  document.getElementById('popPred').textContent=preds.length;
+  document.getElementById('dayNum').textContent=day;
+
+  // Graph
+  const gW=gcv.offsetWidth,gH=gcv.offsetHeight;
+  gcv.width=gW*dpr;gcv.height=gH*dpr;gcx.scale(dpr,dpr);
+  gcx.fillStyle='rgba(0,0,0,.3)';gcx.fillRect(0,0,gW,gH);
+  const maxVal=Math.max(1,...history.p,...history.h,...history.pr);
+  function drawLine(arr,color){
+    if(arr.length<2)return;
+    gcx.beginPath();
+    arr.forEach((v,i)=>{
+      const x=i/(arr.length-1)*gW;
+      const y=gH-v/maxVal*(gH-10)-5;
+      i===0?gcx.moveTo(x,y):gcx.lineTo(x,y);
+    });
+    gcx.strokeStyle=color;gcx.lineWidth=1.5;gcx.stroke();
+  }
+  drawLine(history.p,'rgba(102,187,106,.6)');
+  drawLine(history.h,'rgba(79,195,247,.6)');
+  drawLine(history.pr,'rgba(239,83,80,.6)');
+
+  // Readout
+  let rd='<strong>Catena alimentare:</strong> le piante (verdi) crescono, gli erbivori (blu) le mangiano, i predatori (rossi) cacciano gli erbivori. Osserva come le popolazioni oscillano!';
+  if(herbs.length===0&&preds.length>0) rd='<strong>Gli erbivori si sono estinti!</strong> Senza prede, anche i predatori moriranno di fame. L\'ecosistema \u00e8 collassato.';
+  if(preds.length===0&&herbs.length>0) rd='<strong>Senza predatori</strong> gli erbivori si moltiplicano e mangiano tutte le piante. Prova a ricominciare con predatori!';
+  if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> Le popolazioni di predatori e prede oscillano ciclicamente (cicli di Lotka-Volterra): quando le prede aumentano, i predatori crescono; quando i predatori sono troppi, le prede diminuiscono, e poi anche i predatori.';
+  if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> dN/dt = rN(1-N/K) (crescita logistica, capacit\u00e0 portante K). Lotka-Volterra: dN/dt=\u03b1N-\u03b2NP, dP/dt=\u03b4NP-\u03b3P. La biodiversit\u00e0 (Shannon H\'=-\u03a3pi\u00b7ln(pi)) misura la salute dell\'ecosistema. Ogni livello trofico perde ~90% dell\'energia.';
+  document.getElementById('readout').innerHTML=rd;
+
+  requestAnimationFrame(draw);
+}
+
+resetEco();
+setTimeout(draw,150);
+</script>
+</body>
+</html>

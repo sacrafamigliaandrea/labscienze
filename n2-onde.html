@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulatore Onde — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n2); }
+.sim-box { border-radius:var(--radius-lg); overflow:hidden; background:#060a14; border:1px solid var(--n2border); }
+#waveCanvas { display:block; width:100%; }
+.ctrl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; padding:14px 16px; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.04); }
+.ctrl-item { display:flex; flex-direction:column; gap:4px; }
+.ctrl-item label { font-size:.65rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; }
+.ctrl-item .ctrl-row-inner { display:flex; align-items:center; gap:6px; }
+.ctrl-item input[type="range"] { flex:1; accent-color:var(--n2); }
+.ctrl-item .val { font-size:.82rem; color:var(--n2); font-weight:600; min-width:50px; }
+.mode-bar { display:flex; gap:6px; padding:10px 16px; background:rgba(0,0,0,.2); border-top:1px solid rgba(255,255,255,.03); flex-wrap:wrap; }
+.mode-btn { padding:6px 14px; border-radius:8px; border:1px solid rgba(239,83,80,.2); background:rgba(239,83,80,.05); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.72rem; font-weight:500; cursor:pointer; transition:var(--transition); }
+.mode-btn:hover { border-color:var(--n2); color:var(--n2); }
+.mode-btn.active { background:rgba(239,83,80,.15); border-color:var(--n2); color:var(--n2); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>Simulatore Onde</h1><div class="subtitle">Forze, movimento ed energia &middot; Nucleo 2</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>Le <span class="iper" data-iper="onde">onde</span></h2>
+    <p>Le onde trasportano <span class="iper" data-iper="energia">energia</span> senza spostare la materia. Cambia frequenza, ampiezza e velocit&agrave; per capire come si comportano. Attiva due sorgenti per vedere l'interferenza!</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Sperimentare il suono come effetto di una vibrazione</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Collegare vibrazioni e propriet&agrave; della <span class="iper" data-iper="luce">luce</span> alle percezioni sensoriali</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Studiare propagazione delle onde luminose; diffrazione, interferenza, polarizzazione</div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>Laboratorio onde</h2>
+    <div class="sim-box">
+      <canvas id="waveCanvas" width="900" height="350"></canvas>
+      <div class="mode-bar">
+        <button class="mode-btn active" onclick="setMode('single')" id="mSingle">Onda singola</button>
+        <button class="mode-btn" onclick="setMode('two')" id="mTwo">Due sorgenti</button>
+        <button class="mode-btn" onclick="setMode('standing')" id="mStanding">Onda stazionaria</button>
+        <button class="mode-btn" onclick="setMode('longitudinal')" id="mLong">Longitudinale</button>
+      </div>
+      <div class="ctrl-grid">
+        <div class="ctrl-item">
+          <label>Frequenza (Hz)</label>
+          <div class="ctrl-row-inner">
+            <input type="range" id="freq" min="0.5" max="5" step="0.1" value="1.5" oninput="document.getElementById('freqV').textContent=this.value+' Hz'">
+            <span class="val" id="freqV">1.5 Hz</span>
+          </div>
+        </div>
+        <div class="ctrl-item">
+          <label>Ampiezza</label>
+          <div class="ctrl-row-inner">
+            <input type="range" id="amp" min="10" max="80" value="50" oninput="document.getElementById('ampV').textContent=this.value">
+            <span class="val" id="ampV">50</span>
+          </div>
+        </div>
+        <div class="ctrl-item">
+          <label>Velocit&agrave;</label>
+          <div class="ctrl-row-inner">
+            <input type="range" id="spd" min="1" max="10" value="4" oninput="document.getElementById('spdV').textContent=this.value">
+            <span class="val" id="spdV">4</span>
+          </div>
+        </div>
+        <div class="ctrl-item">
+          <label>Seconda frequenza (Hz)</label>
+          <div class="ctrl-row-inner">
+            <input type="range" id="freq2" min="0.5" max="5" step="0.1" value="2" oninput="document.getElementById('freq2V').textContent=this.value+' Hz'">
+            <span class="val" id="freq2V">2 Hz</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const cv=document.getElementById('waveCanvas'),cx=cv.getContext('2d');
+let W=900,H=350,t=0,mode='single';
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById({single:'mSingle',two:'mTwo',standing:'mStanding',longitudinal:'mLong'}[m]).classList.add('active');
+  updateReadout();
+}
+
+function updateReadout(){
+  const f=+document.getElementById('freq').value;
+  const a=+document.getElementById('amp').value;
+  const s=+document.getElementById('spd').value;
+  const wl=(s/f).toFixed(1);
+
+  let rd='';
+  if(mode==='single') rd=`<strong>Onda trasversale:</strong> le particelle oscillano perpendicolarmente alla direzione di propagazione (come un'onda marina). Lunghezza d'onda \u03bb = v/f = ${wl} unit\u00e0.`;
+  else if(mode==='two') rd=`<strong>Interferenza:</strong> quando due onde si incontrano, si sommano. Se sono "in fase" (creste allineate) si amplificano (costruttiva); se sono "in opposizione" si annullano (distruttiva). Cambia la seconda frequenza per osservare!`;
+  else if(mode==='standing') rd=`<strong>Onda stazionaria:</strong> due onde uguali che viaggiano in direzioni opposte creano punti fermi (nodi) e punti di massima oscillazione (ventri). \u00c8 ci\u00f2 che succede sulle corde di una chitarra!`;
+  else rd=`<strong>Onda longitudinale:</strong> le particelle oscillano nella stessa direzione della propagazione (come il suono nell'aria). Le zone pi\u00f9 dense sono compressioni, quelle meno dense rarefazioni.`;
+
+  if(currentLevel>=2) rd+=`<br><br><strong>Indaga:</strong> v = \u03bb\u00b7f. L'ampiezza determina l'intensit\u00e0 (volume del suono, luminosit\u00e0 della luce). La frequenza determina il tono (suono) o il colore (luce). Suono: 20-20.000 Hz. Luce visibile: 430-770 THz.`;
+  if(currentLevel>=3) rd+=`<br><br><strong>Approfondisci:</strong> Equazione d'onda: \u2202\u00b2\u03c8/\u2202x\u00b2 = (1/v\u00b2)\u00b7\u2202\u00b2\u03c8/\u2202t\u00b2. Interferenza: I = I\u2081+I\u2082+2\u221a(I\u2081I\u2082)\u00b7cos(\u0394\u03c6). Effetto Doppler: f' = f\u00b7(v\u00b1v_o)/(v\u2213v_s). Onde stazionarie: frequenze armoniche f_n = n\u00b7v/(2L).`;
+  document.getElementById('readout').innerHTML=rd;
+}
+
+function draw(){
+  t+=0.03;
+  const dpr=window.devicePixelRatio||1;
+  W=cv.offsetWidth; H=350;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cx.scale(dpr,dpr);
+  cx.fillStyle='#050810'; cx.fillRect(0,0,W,H);
+
+  const f=+document.getElementById('freq').value;
+  const a=+document.getElementById('amp').value;
+  const s=+document.getElementById('spd').value;
+  const f2=+document.getElementById('freq2').value;
+  const midY=H/2;
+
+  // Grid
+  cx.strokeStyle='rgba(255,255,255,.04)'; cx.lineWidth=1;
+  for(let y=midY-100;y<=midY+100;y+=50){
+    cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();
+  }
+  // Axis
+  cx.strokeStyle='rgba(255,255,255,.1)';
+  cx.beginPath();cx.moveTo(0,midY);cx.lineTo(W,midY);cx.stroke();
+
+  if(mode==='longitudinal'){
+    // Longitudinal wave: dots that compress and rarefy
+    const rows=8, cols=50;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const baseX=c*(W/cols)+W/(cols*2);
+        const baseY=midY-70+r*20;
+        const displacement=Math.sin(c*f*0.3-t*s*2)*a*0.15;
+        const density=Math.cos(c*f*0.3-t*s*2);
+        const px=baseX+displacement;
+        const sz=2+density*1;
+        cx.beginPath();cx.arc(px,baseY,Math.max(1,sz),0,Math.PI*2);
+        cx.fillStyle=`rgba(239,83,80,${0.3+density*0.3})`;
+        cx.fill();
+      }
+    }
+    // Direction arrow
+    cx.fillStyle='rgba(255,255,255,.15)';cx.font='10px DM Sans';cx.textAlign='center';
+    cx.fillText('\u2192 Direzione di propagazione',W/2,H-20);
+    cx.fillText('\u2194 Oscillazione delle particelle',W/2,H-6);
+  } else {
+    // Transverse waves
+    // Wave 1
+    cx.beginPath();
+    cx.moveTo(0,midY);
+    for(let x=0;x<W;x++){
+      let y=Math.sin((x*f*0.02)-t*s)*a;
+      if(mode==='standing') y=Math.sin(x*f*0.02)*Math.cos(t*s)*a;
+      if(mode==='two'){
+        const y2=Math.sin((x*f2*0.02)-t*s)*a*0.7;
+        y+=y2;
+      }
+      cx.lineTo(x,midY+y);
+    }
+    cx.strokeStyle='rgba(239,83,80,.7)';cx.lineWidth=2.5;cx.stroke();
+
+    // Fill under wave
+    cx.beginPath();cx.moveTo(0,midY);
+    for(let x=0;x<W;x++){
+      let y=Math.sin((x*f*0.02)-t*s)*a;
+      if(mode==='standing') y=Math.sin(x*f*0.02)*Math.cos(t*s)*a;
+      if(mode==='two') y+=Math.sin((x*f2*0.02)-t*s)*a*0.7;
+      cx.lineTo(x,midY+y);
+    }
+    cx.lineTo(W,midY);cx.closePath();
+    cx.fillStyle='rgba(239,83,80,.06)';cx.fill();
+
+    // Second wave separately (if two sources)
+    if(mode==='two'){
+      cx.beginPath();cx.moveTo(0,midY);
+      for(let x=0;x<W;x++){
+        const y=Math.sin((x*f2*0.02)-t*s)*a*0.7;
+        cx.lineTo(x,midY+y);
+      }
+      cx.strokeStyle='rgba(79,195,247,.4)';cx.lineWidth=1.5;cx.stroke();
+    }
+
+    // Standing wave nodes
+    if(mode==='standing'){
+      for(let x=0;x<W;x+=Math.round(Math.PI/(f*0.02))){
+        cx.beginPath();cx.arc(x,midY,4,0,Math.PI*2);
+        cx.fillStyle='rgba(255,204,2,.4)';cx.fill();
+      }
+      cx.fillStyle='rgba(255,204,2,.3)';cx.font='9px DM Sans';cx.textAlign='center';
+      cx.fillText('N = nodo (punto fermo)',W/2,H-8);
+    }
+
+    // Wavelength marker
+    const wl=Math.round(1/(f*0.02)*Math.PI*2);
+    if(wl<W&&mode==='single'){
+      cx.strokeStyle='rgba(255,204,2,.35)';cx.lineWidth=1;cx.setLineDash([4,4]);
+      cx.beginPath();cx.moveTo(50,midY-a-15);cx.lineTo(50+wl,midY-a-15);cx.stroke();
+      cx.setLineDash([]);
+      cx.beginPath();cx.moveTo(50,midY-a-20);cx.lineTo(50,midY-a-10);cx.stroke();
+      cx.beginPath();cx.moveTo(50+wl,midY-a-20);cx.lineTo(50+wl,midY-a-10);cx.stroke();
+      cx.fillStyle='rgba(255,204,2,.5)';cx.font='10px DM Sans';cx.textAlign='center';
+      cx.fillText('\u03bb = '+(s/f).toFixed(1),50+wl/2,midY-a-22);
+    }
+
+    // Amplitude marker
+    if(mode==='single'){
+      cx.strokeStyle='rgba(102,187,106,.3)';cx.lineWidth=1;cx.setLineDash([4,4]);
+      cx.beginPath();cx.moveTo(20,midY);cx.lineTo(20,midY-a);cx.stroke();
+      cx.setLineDash([]);
+      cx.fillStyle='rgba(102,187,106,.5)';cx.font='9px DM Sans';cx.textAlign='right';
+      cx.fillText('A='+a,16,midY-a/2+3);
+    }
+
+    // Labels
+    cx.fillStyle='rgba(255,255,255,.12)';cx.font='9px DM Sans';cx.textAlign='left';
+    cx.fillText('cresta',60,midY-a+12);
+    cx.fillText('ventre',60,midY+a-4);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+setTimeout(()=>{draw();updateReadout()},150);
+</script>
+</body>
+</html>

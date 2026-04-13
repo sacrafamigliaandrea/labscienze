@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incroci Mendeliani — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n3); }
+.cross-area { display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:start; margin-top:16px; }
+@media(max-width:700px){ .cross-area{grid-template-columns:1fr;} }
+.parent-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius-lg); padding:20px; text-align:center; }
+.parent-card h4 { font-size:.85rem; color:var(--n3); margin-bottom:10px; }
+.trait-btns { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+.trait-btn { padding:8px 16px; border-radius:8px; border:1.5px solid rgba(102,187,106,.2); background:rgba(102,187,106,.05); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.75rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+.trait-btn:hover { border-color:var(--n3); color:var(--n3); }
+.trait-btn.active { background:rgba(102,187,106,.15); border-color:var(--n3); color:var(--n3); }
+.parent-preview { width:60px; height:60px; border-radius:50%; margin:10px auto; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+.cross-symbol { display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--corona); font-weight:700; padding-top:40px; }
+.punnett { display:grid; grid-template-columns:auto 1fr 1fr; grid-template-rows:auto 1fr 1fr; gap:4px; max-width:320px; margin:20px auto; }
+.punnett-cell { display:flex; align-items:center; justify-content:center; padding:14px; border-radius:8px; font-family:var(--font-body); font-weight:600; font-size:.9rem; }
+.punnett-header { background:rgba(102,187,106,.08); color:var(--n3); }
+.punnett-corner { background:transparent; }
+.punnett-result { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); color:rgba(255,255,255,.7); cursor:pointer; transition:var(--transition); }
+.punnett-result:hover { border-color:var(--n3); }
+.punnett-result.dominant { background:rgba(102,187,106,.08); }
+.punnett-result.recessive { background:rgba(255,193,7,.08); }
+.offspring-strip { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+.offspring-item { text-align:center; }
+.offspring-pea { width:40px; height:40px; border-radius:50%; margin:0 auto 4px; }
+.offspring-pct { font-size:.8rem; font-weight:700; color:var(--n3); }
+.offspring-geno { font-size:.65rem; color:rgba(255,255,255,.35); }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>Incroci Mendeliani</h1><div class="subtitle">Esseri viventi e corpo umano &middot; Nucleo 3</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1);render()">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2);render()">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3);render()">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>La <span class="iper" data-iper="genetica">genetica</span> di Mendel</h2>
+    <p>Scegli il genotipo dei due genitori e osserva le probabilit&agrave; nei figli. Giallo (G) &egrave; dominante, verde (g) &egrave; recessivo &mdash; proprio come negli esperimenti di Mendel con le piante di pisello!</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Studiare diversit&agrave; ed evoluzione dei viventi, biologia cellulare e <span class="iper" data-iper="genetica">genetica</span></div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>L'incrocio</h2>
+    <div class="cross-area">
+      <div class="parent-card">
+        <h4>Genitore 1</h4>
+        <div class="trait-btns" id="p1btns"></div>
+        <div class="parent-preview" id="p1preview"></div>
+        <div id="p1label" style="font-size:.75rem;color:rgba(255,255,255,.4)"></div>
+      </div>
+      <div class="cross-symbol">&times;</div>
+      <div class="parent-card">
+        <h4>Genitore 2</h4>
+        <div class="trait-btns" id="p2btns"></div>
+        <div class="parent-preview" id="p2preview"></div>
+        <div id="p2label" style="font-size:.75rem;color:rgba(255,255,255,.4)"></div>
+      </div>
+    </div>
+    <div id="punnettContainer"></div>
+    <div class="offspring-strip" id="offspringStrip"></div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const GENOTYPES = ['GG','Gg','gg'];
+const LABELS = {GG:'Omozigote dominante',Gg:'Eterozigote',gg:'Omozigote recessivo'};
+const PHENO = {GG:'Giallo',Gg:'Giallo',gg:'Verde'};
+const COLOR = {GG:'#fdd835',Gg:'#fdd835',gg:'#66bb6a'};
+
+let parent1='GG', parent2='Gg';
+
+function buildBtns(){
+  ['p1','p2'].forEach(p=>{
+    const el=document.getElementById(p+'btns');
+    el.innerHTML='';
+    GENOTYPES.forEach(g=>{
+      const btn=document.createElement('button');
+      btn.className='trait-btn'+(({p1:parent1,p2:parent2}[p])===g?' active':'');
+      btn.textContent=g;
+      btn.onclick=()=>{if(p==='p1')parent1=g;else parent2=g;render();};
+      el.appendChild(btn);
+    });
+  });
+}
+
+function getPunnett(){
+  const a1=[parent1[0],parent1[1]];
+  const a2=[parent2[0],parent2[1]];
+  const results=[];
+  for(const g1 of a1) for(const g2 of a2){
+    const sorted=g1<=g2?g1+g2:g2+g1;
+    results.push(sorted==='gG'?'Gg':sorted);
+  }
+  return results;
+}
+
+function render(){
+  buildBtns();
+  // Previews
+  ['p1','p2'].forEach(p=>{
+    const g=p==='p1'?parent1:parent2;
+    document.getElementById(p+'preview').style.background=COLOR[g];
+    document.getElementById(p+'label').textContent=LABELS[g]+' ('+PHENO[g]+')';
+  });
+  // Punnett
+  const results=getPunnett();
+  const a1=[parent1[0],parent1[1]], a2=[parent2[0],parent2[1]];
+  let html='<div class="punnett">';
+  html+='<div class="punnett-cell punnett-corner"></div>';
+  html+=`<div class="punnett-cell punnett-header">${a2[0]}</div>`;
+  html+=`<div class="punnett-cell punnett-header">${a2[1]}</div>`;
+  let ri=0;
+  for(const g1 of a1){
+    html+=`<div class="punnett-cell punnett-header">${g1}</div>`;
+    for(const g2 of a2){
+      const r=results[ri];
+      const cls=r==='gg'?'recessive':'dominant';
+      html+=`<div class="punnett-cell punnett-result ${cls}" style="background:${COLOR[r]}22;border-color:${COLOR[r]}44"><span style="color:${COLOR[r]}">${r}</span></div>`;
+      ri++;
+    }
+  }
+  html+='</div>';
+  document.getElementById('punnettContainer').innerHTML=html;
+
+  // Offspring probabilities
+  const counts={};
+  results.forEach(r=>{counts[r]=(counts[r]||0)+1;});
+  let oHtml='';
+  Object.entries(counts).forEach(([g,n])=>{
+    const pct=Math.round(n/4*100);
+    oHtml+=`<div class="offspring-item"><div class="offspring-pea" style="background:${COLOR[g]}"></div><div class="offspring-pct">${pct}%</div><div class="offspring-geno">${g} — ${PHENO[g]}</div></div>`;
+  });
+  document.getElementById('offspringStrip').innerHTML=oHtml;
+
+  // Readout
+  const hasGreen=results.includes('gg');
+  const allYellow=!hasGreen;
+  let rd=`<strong>Risultato:</strong> `;
+  if(allYellow) rd+='Tutti i figli saranno gialli! Il verde non appare perch\u00e9 serve la combinazione "gg" (due copie recessive).';
+  else if(counts['gg']===4) rd+='Tutti i figli saranno verdi! Entrambi i genitori sono "gg" e non hanno il gene dominante giallo.';
+  else rd+=`Il ${Math.round((counts['gg']||0)/4*100)}% dei figli sar\u00e0 verde (gg) e il resto giallo. Il verde appare solo quando entrambe le copie sono recessive!`;
+
+  if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> L\'allele dominante (G) si manifesta sempre. Il recessivo (g) si vede solo in doppia copia (gg). Il genotipo (lettere) determina il fenotipo (colore). Il quadrato di Punnett prevede le probabilit\u00e0, non la certezza.';
+  if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Prima legge di Mendel (segregazione): i due alleli si separano durante la formazione dei gameti. Seconda legge (assortimento indipendente): geni su cromosomi diversi si distribuiscono indipendentemente. La dominanza incompleta e la codominanza sono eccezioni al modello mendeliano semplice.';
+  document.getElementById('readout').innerHTML=rd;
+}
+
+render();
+</script>
+</body>
+</html>

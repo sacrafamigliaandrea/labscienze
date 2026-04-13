@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Costruttore Circuiti — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n2); }
+.circuit-area { display:grid; grid-template-columns:1fr; gap:14px; }
+.board { position:relative; background:#060a14; border:1px solid var(--n2border); border-radius:var(--radius-lg); min-height:440px; overflow:hidden; }
+#circuitCanvas { display:block; width:100%; height:100%; }
+.parts-bar { display:flex; gap:8px; padding:12px 16px; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.04); flex-wrap:wrap; align-items:center; }
+.part-btn { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; border:1px solid var(--n2border); background:rgba(239,83,80,.06); color:var(--n2); font-family:var(--font-body); font-size:.72rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+.part-btn:hover { background:rgba(239,83,80,.18); }
+.part-btn svg { width:16px; height:16px; }
+.info-row { display:flex; flex-wrap:wrap; gap:16px; padding:10px 16px; background:rgba(0,0,0,.2); border-top:1px solid rgba(255,255,255,.03); }
+.info-row .inf { display:flex; flex-direction:column; }
+.info-row .inf .lb { font-size:.55rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.3); }
+.info-row .inf .vl { font-size:.88rem; font-weight:600; color:var(--n2); }
+.preset-btns { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.preset-btn { padding:6px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.7rem; cursor:pointer; transition:var(--transition); }
+.preset-btn:hover { border-color:var(--n2); color:var(--n2); }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header"><h1>Costruttore Circuiti</h1><div class="subtitle">Forze, movimento ed energia &middot; Nucleo 2</div></header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+  <div class="section-panel">
+    <h2>I <span class="iper" data-iper="circuito">circuiti elettrici</span></h2>
+    <p>Costruisci circuiti collegando batteria, lampadine e interruttori. Osserva la corrente che scorre e scopri la differenza tra circuiti in serie e in parallelo.</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Indicazioni 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Costruire semplici circuiti elettrici con pile e lampadine</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Sperimentare con circuiti elettrici semplici; <span class="iper" data-iper="energia">conservazione dell'energia</span></div>
+    </div>
+  </div>
+  <div class="section-panel">
+    <h2>Il tuo banco di lavoro</h2>
+    <p>Scegli un circuito preimpostato oppure costruiscine uno tuo. Clicca sull'interruttore per aprire/chiudere il circuito.</p>
+    <div class="preset-btns">
+      <button class="preset-btn" onclick="loadPreset('simple')">Circuito semplice</button>
+      <button class="preset-btn" onclick="loadPreset('series')">Serie (2 lampadine)</button>
+      <button class="preset-btn" onclick="loadPreset('parallel')">Parallelo (2 lampadine)</button>
+      <button class="preset-btn" onclick="loadPreset('complex')">Circuito misto</button>
+    </div>
+    <div class="board" style="margin-top:12px">
+      <canvas id="circuitCanvas"></canvas>
+      <div class="info-row">
+        <div class="inf"><span class="lb">Tensione</span><span class="vl" id="vLabel">9 V</span></div>
+        <div class="inf"><span class="lb">Corrente totale</span><span class="vl" id="iLabel">0 A</span></div>
+        <div class="inf"><span class="lb">Resistenza totale</span><span class="vl" id="rLabel">0 &Omega;</span></div>
+        <div class="inf"><span class="lb">Potenza</span><span class="vl" id="pLabel">0 W</span></div>
+        <div class="inf"><span class="lb">Circuito</span><span class="vl" id="cState">Aperto</span></div>
+      </div>
+    </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+  </div>
+</div>
+<script src="glossario.js"></script>
+<script>
+const cv=document.getElementById('circuitCanvas'),cx=cv.getContext('2d');
+let W=800, H=400;
+
+// Circuit state
+let circuit = {
+  type: 'simple', // simple, series, parallel, complex
+  voltage: 9,
+  switchOn: false,
+  bulbs: [{r:30,on:false,x:0,y:0}],
+  electrons: [],
+};
+let animFrame = 0;
+
+function loadPreset(type){
+  circuit.type = type;
+  circuit.switchOn = false;
+  circuit.electrons = [];
+  if(type==='simple') circuit.bulbs=[{r:30,on:false}];
+  else if(type==='series') circuit.bulbs=[{r:30,on:false},{r:30,on:false}];
+  else if(type==='parallel') circuit.bulbs=[{r:20,on:false},{r:20,on:false}];
+  else circuit.bulbs=[{r:30,on:false},{r:20,on:false},{r:20,on:false}];
+  // Create electrons along the path
+  for(let i=0;i<20;i++){
+    circuit.electrons.push({t:i/20, speed:0.003});
+  }
+  updateReadout();
+}
+
+// Click to toggle switch
+cv.addEventListener('click', e=>{
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)/rect.width*W;
+  const my=(e.clientY-rect.top)/rect.height*H;
+  // Switch area
+  if(mx>350&&mx<450&&my>310&&my<360){
+    circuit.switchOn = !circuit.switchOn;
+    circuit.bulbs.forEach(b=>b.on=circuit.switchOn);
+    updateReadout();
+  }
+});
+
+function getCircuitValues(){
+  if(!circuit.switchOn) return {I:0,R:Infinity,P:0};
+  let R;
+  if(circuit.type==='simple') R=circuit.bulbs[0].r;
+  else if(circuit.type==='series') R=circuit.bulbs.reduce((s,b)=>s+b.r,0);
+  else if(circuit.type==='parallel'){
+    const inv=circuit.bulbs.reduce((s,b)=>s+1/b.r,0);
+    R=1/inv;
+  } else { // complex: first in series, then 2 in parallel
+    const parInv=1/circuit.bulbs[1].r+1/circuit.bulbs[2].r;
+    R=circuit.bulbs[0].r+1/parInv;
+  }
+  const I=circuit.voltage/R;
+  const P=circuit.voltage*I;
+  return {I:+I.toFixed(2),R:+R.toFixed(1),P:+P.toFixed(1)};
+}
+
+function updateReadout(){
+  const v=getCircuitValues();
+  document.getElementById('vLabel').textContent=circuit.voltage+' V';
+  document.getElementById('iLabel').textContent=v.I+' A';
+  document.getElementById('rLabel').textContent=(v.R===Infinity?'\u221e':v.R)+' \u03a9';
+  document.getElementById('pLabel').textContent=v.P+' W';
+  document.getElementById('cState').textContent=circuit.switchOn?'Chiuso':'Aperto';
+
+  let rd='';
+  if(!circuit.switchOn) rd='<strong>Circuito aperto.</strong> Clicca sull\'interruttore (in basso al centro) per chiudere il circuito e far scorrere la corrente.';
+  else {
+    const typeNames={simple:'semplice',series:'in serie',parallel:'in parallelo',complex:'misto'};
+    rd=`<strong>Circuito ${typeNames[circuit.type]} &mdash; attivo!</strong> La corrente scorre a ${v.I} A. Le palline blu sono gli elettroni che si muovono nel circuito.`;
+    if(circuit.type==='series') rd+=' In serie la corrente \u00e8 uguale in ogni punto ma la tensione si divide tra le lampadine.';
+    if(circuit.type==='parallel') rd+=' In parallelo la tensione \u00e8 uguale su ogni ramo ma la corrente si divide.';
+  }
+  if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> Legge di Ohm: V = I\u00b7R. In serie: R_tot = R\u2081+R\u2082. In parallelo: 1/R_tot = 1/R\u2081+1/R\u2082. La potenza P = V\u00b7I indica quanta energia il circuito consuma al secondo.';
+  if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Leggi di Kirchhoff: KCL (\u03a3I in un nodo = 0) e KVL (\u03a3V in un anello = 0). P = I\u00b2R = V\u00b2/R. La resistivit\u00e0 \u03c1 dipende dal materiale: R = \u03c1L/A.';
+  document.getElementById('readout').innerHTML=rd;
+}
+
+function draw(){
+  animFrame++;
+  const rect=cv.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  W=rect.width; H=420;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cx.scale(dpr,dpr);
+  cx.fillStyle='#050810'; cx.fillRect(0,0,W,H);
+
+  const midX=W/2, midY=H/2-20;
+  const hw=Math.min(300,W*0.38), hh=120;
+
+  // Wire path (rectangle)
+  const path=[
+    {x:midX-hw,y:midY-hh}, // top-left
+    {x:midX+hw,y:midY-hh}, // top-right
+    {x:midX+hw,y:midY+hh}, // bottom-right
+    {x:midX-hw,y:midY+hh}, // bottom-left
+  ];
+
+  // Draw wires
+  cx.strokeStyle=circuit.switchOn?'rgba(239,83,80,.4)':'rgba(255,255,255,.1)';
+  cx.lineWidth=3;
+  cx.beginPath();
+  cx.moveTo(path[0].x,path[0].y);
+  path.forEach(p=>cx.lineTo(p.x,p.y));
+  cx.closePath();
+  cx.stroke();
+
+  // Battery (left side)
+  const bx=midX-hw-2, by=midY;
+  cx.fillStyle='rgba(0,0,0,.4)';
+  cx.fillRect(bx-15,by-30,30,60);
+  cx.strokeStyle='rgba(255,255,255,.2)';cx.lineWidth=1;
+  cx.strokeRect(bx-15,by-30,30,60);
+  // + -
+  cx.fillStyle='#ef5350';cx.font='bold 14px DM Sans';cx.textAlign='center';
+  cx.fillText('+',bx,by-18);
+  cx.fillStyle='#4fc3f7';
+  cx.fillText('\u2013',bx,by+24);
+  cx.fillStyle='rgba(255,255,255,.3)';cx.font='9px DM Sans';
+  cx.fillText(circuit.voltage+'V',bx,by+45);
+
+  // Bulbs
+  const bulbPositions=[];
+  if(circuit.type==='simple'){
+    bulbPositions.push({x:midX+hw,y:midY});
+  } else if(circuit.type==='series'){
+    bulbPositions.push({x:midX,y:midY-hh});
+    bulbPositions.push({x:midX+hw,y:midY});
+  } else if(circuit.type==='parallel'){
+    bulbPositions.push({x:midX+hw,y:midY-hh/2});
+    bulbPositions.push({x:midX+hw,y:midY+hh/2});
+    // Draw parallel branch
+    cx.strokeStyle=circuit.switchOn?'rgba(239,83,80,.3)':'rgba(255,255,255,.08)';
+    cx.lineWidth=2;
+    cx.beginPath();
+    cx.moveTo(midX+hw-40,midY-hh);cx.lineTo(midX+hw,midY-hh/2);
+    cx.stroke();
+    cx.beginPath();
+    cx.moveTo(midX+hw,midY+hh/2);cx.lineTo(midX+hw-40,midY+hh);
+    cx.stroke();
+    cx.beginPath();
+    cx.moveTo(midX+hw+40,midY-hh);cx.lineTo(midX+hw,midY-hh/2);
+    cx.stroke();
+    cx.beginPath();
+    cx.moveTo(midX+hw,midY+hh/2);cx.lineTo(midX+hw+40,midY+hh);
+    cx.stroke();
+  } else { // complex
+    bulbPositions.push({x:midX,y:midY-hh});
+    bulbPositions.push({x:midX+hw,y:midY-hh/2});
+    bulbPositions.push({x:midX+hw,y:midY+hh/2});
+  }
+
+  circuit.bulbs.forEach((b,i)=>{
+    const bp=bulbPositions[i]||{x:midX,y:midY};
+    b.x=bp.x; b.y=bp.y;
+    // Glow
+    if(circuit.switchOn){
+      const glow=cx.createRadialGradient(bp.x,bp.y,0,bp.x,bp.y,40);
+      glow.addColorStop(0,'rgba(255,204,2,.2)');
+      glow.addColorStop(1,'transparent');
+      cx.fillStyle=glow;
+      cx.beginPath();cx.arc(bp.x,bp.y,40,0,Math.PI*2);cx.fill();
+    }
+    // Bulb
+    cx.beginPath();cx.arc(bp.x,bp.y,16,0,Math.PI*2);
+    cx.fillStyle=circuit.switchOn?'rgba(255,204,2,.6)':'rgba(255,255,255,.08)';
+    cx.fill();
+    cx.strokeStyle=circuit.switchOn?'rgba(255,204,2,.8)':'rgba(255,255,255,.15)';
+    cx.lineWidth=2;cx.stroke();
+    // Filament
+    cx.beginPath();
+    cx.moveTo(bp.x-6,bp.y+8);cx.lineTo(bp.x-3,bp.y-6);cx.lineTo(bp.x+3,bp.y+4);cx.lineTo(bp.x+6,bp.y-8);
+    cx.strokeStyle=circuit.switchOn?'#ffcc02':'rgba(255,255,255,.15)';
+    cx.lineWidth=1.5;cx.stroke();
+    // Label
+    cx.fillStyle='rgba(255,255,255,.3)';cx.font='9px DM Sans';cx.textAlign='center';
+    cx.fillText(b.r+'\u03a9',bp.x,bp.y+30);
+  });
+
+  // Switch (bottom center)
+  const sx=midX, sy=midY+hh+20;
+  cx.fillStyle='rgba(0,0,0,.3)';
+  cx.beginPath();cx.roundRect(sx-40,sy-15,80,30,8);cx.fill();
+  cx.strokeStyle=circuit.switchOn?'rgba(102,187,106,.5)':'rgba(255,255,255,.15)';
+  cx.lineWidth=1.5;
+  cx.beginPath();cx.roundRect(sx-40,sy-15,80,30,8);cx.stroke();
+  // Handle
+  if(circuit.switchOn){
+    cx.fillStyle='rgba(102,187,106,.3)';
+    cx.fillRect(sx-30,sy-8,60,16);
+    cx.fillStyle='#66bb6a';cx.font='bold 10px DM Sans';
+    cx.fillText('ON',sx,sy+4);
+  } else {
+    cx.fillStyle='rgba(239,83,80,.15)';
+    cx.fillRect(sx-20,sy-8,20,16);
+    cx.fillStyle='rgba(239,83,80,.6)';cx.font='bold 10px DM Sans';
+    cx.fillText('OFF',sx,sy+4);
+  }
+  cx.fillStyle='rgba(255,255,255,.2)';cx.font='8px DM Sans';
+  cx.fillText('clicca per commutare',sx,sy+28);
+
+  // Electrons
+  if(circuit.switchOn){
+    const vals=getCircuitValues();
+    const speed=Math.min(0.012, vals.I*0.004);
+    circuit.electrons.forEach(el=>{
+      el.t=(el.t+speed)%1;
+      const idx=Math.floor(el.t*4);
+      const frac=el.t*4-idx;
+      const p1=path[idx], p2=path[(idx+1)%4];
+      const ex=p1.x+(p2.x-p1.x)*frac;
+      const ey=p1.y+(p2.y-p1.y)*frac;
+      cx.beginPath();cx.arc(ex,ey,3,0,Math.PI*2);
+      cx.fillStyle='rgba(79,195,247,.7)';cx.fill();
+      cx.beginPath();cx.arc(ex,ey,6,0,Math.PI*2);
+      cx.fillStyle='rgba(79,195,247,.15)';cx.fill();
+    });
+  }
+
+  requestAnimationFrame(draw);
+}
+
+loadPreset('simple');
+setTimeout(draw,150);
+</script>
+</body>
+</html>
