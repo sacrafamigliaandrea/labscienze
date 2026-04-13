@@ -18,16 +18,13 @@
 .ctrl-row label { font-size:.72rem; color:rgba(255,255,255,.45); white-space:nowrap; }
 .ctrl-row input[type="range"] { width:160px; accent-color:var(--n1); }
 .ctrl-row .val { color:var(--n1); font-size:.85rem; font-weight:600; min-width:55px; }
-.thermo { width:30px; height:140px; background:rgba(0,0,0,.4); border-radius:15px; border:1px solid rgba(255,255,255,.08); position:relative; overflow:hidden; flex-shrink:0; }
-.thermo-fill { position:absolute; bottom:0; left:0; right:0; border-radius:0 0 14px 14px; transition:height .3s, background .3s; }
-.thermo-label { position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:.55rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; white-space:nowrap; }
 .state-badge { padding:5px 14px; border-radius:20px; font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; transition:var(--transition); }
 .state-solid { background:rgba(79,195,247,.15); color:#4fc3f7; }
 .state-liquid { background:rgba(102,187,106,.15); color:#66bb6a; }
 .state-gas { background:rgba(255,152,0,.15); color:#ffa726; }
 .state-plasma { background:rgba(244,67,54,.15); color:#ef5350; }
-.legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; }
-.legend-item { display:flex; align-items:center; gap:6px; font-size:.72rem; color:rgba(255,255,255,.45); }
+.legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:.72rem; color:rgba(255,255,255,.4); }
 .legend-dot { width:10px; height:10px; border-radius:50%; }
 </style>
 </head>
@@ -35,10 +32,7 @@
 <div class="stars-container" id="starsContainer"></div>
 <div class="app-container">
   <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
-  <header class="page-header">
-    <h1>Simulatore Particelle</h1>
-    <div class="subtitle">Materia e trasformazioni &middot; Nucleo 1</div>
-  </header>
+  <header class="page-header"><h1>Simulatore Particelle</h1><div class="subtitle">Materia e trasformazioni &middot; Nucleo 1</div></header>
   <div class="complexity-bar">
     <span class="complexity-label">Livello</span>
     <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
@@ -47,26 +41,30 @@
   </div>
 
   <div class="section-panel">
-    <h2>Gli stati della materia</h2>
-    <p>Le <span class="iper" data-iper="particelle">particelle</span> si comportano in modo diverso a seconda della temperatura. Alza e abbassa il termometro per osservare i tre <span class="iper" data-iper="stati-materia">stati della materia</span> e i <span class="iper" data-iper="passaggi-stato">passaggi di stato</span>.</p>
+    <!-- SOCRATIC INTRO -->
+    <div class="intro-question">Prendi un cubetto di ghiaccio in mano. Aspetta un minuto. Che succede? E se lo metti in padella?</div>
+    <p>Il ghiaccio diventa acqua, l'acqua diventa vapore. Ma... <strong>&egrave; sempre la stessa roba!</strong> Cosa cambia? Il modo in cui le <span class="iper" data-iper="particelle">particelle</span> si muovono. In questo laboratorio puoi vederle: alza la temperatura e guarda cosa fanno.</p>
+
+    <!-- CURRICOLO BOX (auto-hidden by glossario.js) -->
     <div class="curricolo-box">
-      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Obiettivi — Indicazioni Nazionali 2025</div>
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Obiettivi &mdash; Indicazioni Nazionali 2025</div>
       <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Osservare semplici fenomeni di cambiamento di stato (scioglimento del ghiaccio, evaporazione)</div>
       <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Riconoscere gli stati della materia e i passaggi di stato, osservandone i cambiamenti</div>
       <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Osservare e descrivere i passaggi di stato e il comportamento delle sostanze in diverse condizioni</div>
     </div>
   </div>
 
+  <!-- SIMULATOR -->
   <div class="section-panel">
-    <h2>Laboratorio virtuale</h2>
-    <p>Trascina lo slider della temperatura e osserva come cambiano le <span class="iper" data-iper="particelle">particelle</span>. Clicca sul contenitore per aggiungere particelle.</p>
+    <h2>Il tuo laboratorio</h2>
+    <p>Muovi lo slider della temperatura. Clicca dentro il contenitore per aggiungere particelle.</p>
     <div class="sim-box">
       <canvas id="simCanvas" width="900" height="500"></canvas>
       <div class="sim-strip">
         <div class="info"><span class="lb">Stato</span><span class="vl" id="stateLabel">Solido</span></div>
         <div class="info"><span class="lb">Temperatura</span><span class="vl" id="tempLabel">-20&deg;C</span></div>
         <div class="info"><span class="lb">Particelle</span><span class="vl" id="countLabel">80</span></div>
-        <div class="info"><span class="lb">Energia cinetica media</span><span class="vl" id="ekLabel">0.2 u</span></div>
+        <div class="info"><span class="lb">Velocit&agrave; media</span><span class="vl" id="ekLabel">0.2</span></div>
         <div class="state-badge state-solid" id="stateBadge">Solido</div>
       </div>
       <div class="ctrl-row">
@@ -78,16 +76,79 @@
       </div>
     </div>
 
-    <div class="exp-readout" id="readout" style="margin-top:14px">
-      Alza la temperatura per vedere le particelle passare dal solido al liquido e poi al gas!
+    <div class="challenge-box">
+      <div class="ch-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> Sfide</div>
+      <div class="challenge-item">Trova la temperatura esatta in cui il ghiaccio inizia a sciogliersi (le linee tra le particelle spariscono)</div>
+      <div class="challenge-item">Porta la temperatura al massimo: come si chiama questo quarto stato?</div>
+      <div class="challenge-item">Aggiungi tante particelle (clicca sul contenitore) e abbassa la temperatura: si ordinano tutte?</div>
     </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px"></div>
 
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div> Solido: vibrano in posizione</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div> Liquido: scivolano tra loro</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div> Solido: tremano ferme</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div> Liquido: scivolano</div>
       <div class="legend-item"><div class="legend-dot" style="background:#ffa726"></div> Gas: volano libere</div>
     </div>
   </div>
+
+  <!-- MISSIONS -->
+  <div class="section-panel">
+    <div class="missions-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> Le tue missioni</div>
+    <div class="mission-list">
+      <div class="mission-card" onclick="this.classList.toggle('completed');this.classList.toggle('show-hint')">
+        <div class="mission-num">1</div>
+        <div class="mission-text">
+          <p>Trova la temperatura esatta in cui il ghiaccio inizia a sciogliersi. A quanti gradi succede?</p>
+          <div class="mission-hint">La risposta &egrave; 0&deg;C! &Egrave; il punto di fusione dell'acqua. Nota come durante la fusione le linee tra le particelle (i legami) si spezzano.</div>
+        </div>
+        <div class="mission-check">&#10003;</div>
+      </div>
+      <div class="mission-card" onclick="this.classList.toggle('completed');this.classList.toggle('show-hint')">
+        <div class="mission-num">2</div>
+        <div class="mission-text">
+          <p>A che temperatura l'acqua liquida diventa gas? Osserva bene: le particelle cambiano colore!</p>
+          <div class="mission-hint">A 100&deg;C inizia l'ebollizione! Le particelle diventano arancioni e volano libere in tutte le direzioni. Nota le scie di velocit&agrave;.</div>
+        </div>
+        <div class="mission-check">&#10003;</div>
+      </div>
+      <div class="mission-card" onclick="this.classList.toggle('completed');this.classList.toggle('show-hint')">
+        <div class="mission-num">3</div>
+        <div class="mission-text">
+          <p>Nello stato solido vedi delle linee tra le particelle. Cosa rappresentano? Prova ad alzare la temperatura piano piano e guarda quando spariscono.</p>
+          <div class="mission-hint">Le linee sono i legami che tengono unite le particelle nel reticolo cristallino. Quando la temperatura sale abbastanza, l'energia spezza i legami e il solido diventa liquido!</div>
+        </div>
+        <div class="mission-check">&#10003;</div>
+      </div>
+      <div class="mission-card" onclick="this.classList.toggle('completed');this.classList.toggle('show-hint')">
+        <div class="mission-num">4</div>
+        <div class="mission-text">
+          <p>Metti la temperatura al massimo. Che succede oltre i 180&deg;C? Che stato &egrave;?</p>
+          <div class="mission-hint">Oltre i 180&deg;C compare il plasma! Le particelle diventano rosse e si muovono a velocit&agrave; folle. Il plasma &egrave; lo stato della materia pi&ugrave; comune nell'universo: le stelle sono fatte di plasma!</div>
+        </div>
+        <div class="mission-check">&#10003;</div>
+      </div>
+      <div class="mission-card" onclick="this.classList.toggle('completed');this.classList.toggle('show-hint')">
+        <div class="mission-num">5</div>
+        <div class="mission-text">
+          <p>Clicca dentro il contenitore per aggiungere tante particelle. Poi metti il gas: si urtano di pi&ugrave;? Le pareti del contenitore "tremano" di pi&ugrave;?</p>
+          <div class="mission-hint">Pi&ugrave; particelle = pi&ugrave; urti contro le pareti = pi&ugrave; pressione! &Egrave; per questo che un palloncino scoppia se lo riempi troppo d'aria.</div>
+        </div>
+        <div class="mission-check">&#10003;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THINK BOX -->
+  <div class="section-panel">
+    <div class="think-box">
+      <div class="think-q"><strong>Ora pensa:</strong> Quando metti i vestiti bagnati sullo stendino, dopo un po' sono asciutti. Ma non li hai riscaldati a 100&deg;C! Come &egrave; possibile che l'acqua sia evaporata?</div>
+      <button class="think-reveal">Scopri la risposta</button>
+      <div class="think-answer">
+        <p>L'evaporazione avviene anche sotto i 100&deg;C! Le particelle di acqua sulla superficie hanno energie diverse: alcune sono abbastanza veloci da "scappare" dal liquido anche a temperatura ambiente. A 100&deg;C bollono tutte insieme, ma l'evaporazione lenta succede sempre. Ecco perch&eacute; le pozzanghere si asciugano anche d'inverno!</p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script src="glossario.js"></script>
@@ -95,309 +156,166 @@
 const cv = document.getElementById('simCanvas');
 const cx = cv.getContext('2d');
 const tempSlider = document.getElementById('tempSlider');
-
 const W = 900, H = 500;
-// Container bounds
 const BOX = { x: 60, y: 40, w: 780, h: 420 };
-
 let particles = [];
-const PARTICLE_R = 6;
+const PR = 6;
 
 function createParticle(x, y){
-  return { x: x || BOX.x + Math.random() * BOX.w, y: y || BOX.y + Math.random() * BOX.h, vx: 0, vy: 0, baseX: 0, baseY: 0 };
+  return { x: x||BOX.x+Math.random()*BOX.w, y: y||BOX.y+Math.random()*BOX.h, vx:0, vy:0, baseX:0, baseY:0 };
 }
-
-function initGrid(count){
-  particles = [];
-  const cols = Math.ceil(Math.sqrt(count * BOX.w / BOX.h));
-  const rows = Math.ceil(count / cols);
-  const spacingX = BOX.w / (cols + 1);
-  const spacingY = BOX.h / (rows + 1);
-  let i = 0;
-  for(let r = 0; r < rows && i < count; r++){
-    for(let c = 0; c < cols && i < count; c++){
-      const px = BOX.x + spacingX * (c + 1);
-      const py = BOX.y + spacingY * (r + 1);
-      const p = createParticle(px, py);
-      p.baseX = px; p.baseY = py;
-      particles.push(p);
-      i++;
-    }
+function initGrid(n){
+  particles=[];
+  const cols=Math.ceil(Math.sqrt(n*BOX.w/BOX.h)), rows=Math.ceil(n/cols);
+  const sx=BOX.w/(cols+1), sy=BOX.h/(rows+1);
+  let i=0;
+  for(let r=0;r<rows&&i<n;r++) for(let c=0;c<cols&&i<n;c++){
+    const px=BOX.x+sx*(c+1), py=BOX.y+sy*(r+1);
+    const p=createParticle(px,py); p.baseX=px; p.baseY=py;
+    particles.push(p); i++;
   }
 }
-
 function resetParticles(){ initGrid(80); }
 function addParticles(n){ for(let i=0;i<n;i++) particles.push(createParticle()); }
-
 initGrid(80);
 
-// Click to add
 cv.addEventListener('click', function(e){
-  const rect = cv.getBoundingClientRect();
-  const scaleX = W / rect.width;
-  const px = (e.clientX - rect.left) * scaleX;
-  const py = (e.clientY - rect.top) * (H / rect.height);
-  if(px > BOX.x && px < BOX.x+BOX.w && py > BOX.y && py < BOX.y+BOX.h){
-    for(let i=0;i<5;i++) particles.push(createParticle(px + (Math.random()-0.5)*20, py + (Math.random()-0.5)*20));
-  }
+  const rect=cv.getBoundingClientRect(), scX=W/rect.width;
+  const px=(e.clientX-rect.left)*scX, py=(e.clientY-rect.top)*(H/rect.height);
+  if(px>BOX.x&&px<BOX.x+BOX.w&&py>BOX.y&&py<BOX.y+BOX.h)
+    for(let i=0;i<5;i++) particles.push(createParticle(px+(Math.random()-.5)*20, py+(Math.random()-.5)*20));
 });
 
-function getState(temp){
-  if(temp < 0) return 'solid';
-  if(temp < 100) return 'liquid';
-  if(temp < 180) return 'gas';
-  return 'plasma';
-}
-
-function getStateLabel(s){
-  return s === 'solid' ? 'Solido' : s === 'liquid' ? 'Liquido' : s === 'gas' ? 'Gas' : 'Plasma';
-}
-
-function getColor(s){
-  return s === 'solid' ? '#4fc3f7' : s === 'liquid' ? '#66bb6a' : s === 'gas' ? '#ffa726' : '#ef5350';
-}
+function getState(t){ return t<0?'solid':t<100?'liquid':t<180?'gas':'plasma'; }
+function getStateIt(s){ return s==='solid'?'Solido':s==='liquid'?'Liquido':s==='gas'?'Gas':'Plasma'; }
+function getColor(s){ return s==='solid'?'#4fc3f7':s==='liquid'?'#66bb6a':s==='gas'?'#ffa726':'#ef5350'; }
 
 function update(){
-  const temp = +tempSlider.value;
-  const state = getState(temp);
-  const energy = Math.max(0.05, (temp + 40) / 240); // 0-1 normalized
-
-  particles.forEach(p => {
-    if(state === 'solid'){
-      // Vibrate around base position
-      const vibration = energy * 3;
-      p.vx = (Math.random() - 0.5) * vibration;
-      p.vy = (Math.random() - 0.5) * vibration;
-      // Pull back to base
-      p.vx += (p.baseX - p.x) * 0.15;
-      p.vy += (p.baseY - p.y) * 0.15;
-      p.vx *= 0.7;
-      p.vy *= 0.7;
-    } else if(state === 'liquid'){
-      // Slow random movement, stay at bottom
-      p.vx += (Math.random() - 0.5) * energy * 1.5;
-      p.vy += (Math.random() - 0.5) * energy * 1.5;
-      p.vy += 0.15; // gravity keeps them low
-      p.vx *= 0.92;
-      p.vy *= 0.92;
-    } else if(state === 'gas'){
-      // Fast random movement
-      p.vx += (Math.random() - 0.5) * energy * 3;
-      p.vy += (Math.random() - 0.5) * energy * 3;
-      p.vx *= 0.96;
-      p.vy *= 0.96;
-    } else { // plasma
-      p.vx += (Math.random() - 0.5) * energy * 6;
-      p.vy += (Math.random() - 0.5) * energy * 6;
-      p.vx *= 0.97;
-      p.vy *= 0.97;
+  const temp=+tempSlider.value, state=getState(temp), energy=Math.max(0.05,(temp+40)/240);
+  particles.forEach(p=>{
+    if(state==='solid'){
+      p.vx=(Math.random()-.5)*energy*3; p.vy=(Math.random()-.5)*energy*3;
+      p.vx+=(p.baseX-p.x)*.15; p.vy+=(p.baseY-p.y)*.15;
+      p.vx*=.7; p.vy*=.7;
+    } else if(state==='liquid'){
+      p.vx+=(Math.random()-.5)*energy*1.5; p.vy+=(Math.random()-.5)*energy*1.5;
+      p.vy+=.15; p.vx*=.92; p.vy*=.92;
+    } else if(state==='gas'){
+      p.vx+=(Math.random()-.5)*energy*3; p.vy+=(Math.random()-.5)*energy*3;
+      p.vx*=.96; p.vy*=.96;
+    } else {
+      p.vx+=(Math.random()-.5)*energy*6; p.vy+=(Math.random()-.5)*energy*6;
+      p.vx*=.97; p.vy*=.97;
     }
-
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Bounce off container walls
-    if(p.x - PARTICLE_R < BOX.x){ p.x = BOX.x + PARTICLE_R; p.vx = Math.abs(p.vx) * 0.8; }
-    if(p.x + PARTICLE_R > BOX.x + BOX.w){ p.x = BOX.x + BOX.w - PARTICLE_R; p.vx = -Math.abs(p.vx) * 0.8; }
-    if(p.y - PARTICLE_R < BOX.y){ p.y = BOX.y + PARTICLE_R; p.vy = Math.abs(p.vy) * 0.8; }
-    if(p.y + PARTICLE_R > BOX.y + BOX.h){ p.y = BOX.y + BOX.h - PARTICLE_R; p.vy = -Math.abs(p.vy) * 0.8; }
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x-PR<BOX.x){p.x=BOX.x+PR;p.vx=Math.abs(p.vx)*.8;}
+    if(p.x+PR>BOX.x+BOX.w){p.x=BOX.x+BOX.w-PR;p.vx=-Math.abs(p.vx)*.8;}
+    if(p.y-PR<BOX.y){p.y=BOX.y+PR;p.vy=Math.abs(p.vy)*.8;}
+    if(p.y+PR>BOX.y+BOX.h){p.y=BOX.y+BOX.h-PR;p.vy=-Math.abs(p.vy)*.8;}
   });
-
-  // Simple collision between particles (repulsion)
-  for(let i = 0; i < particles.length; i++){
-    for(let j = i+1; j < particles.length; j++){
-      const dx = particles[j].x - particles[i].x;
-      const dy = particles[j].y - particles[i].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      const minD = PARTICLE_R * 2.2;
-      if(dist < minD && dist > 0){
-        const force = (minD - dist) / minD * 0.5;
-        const fx = (dx/dist) * force;
-        const fy = (dy/dist) * force;
-        particles[i].vx -= fx;
-        particles[i].vy -= fy;
-        particles[j].vx += fx;
-        particles[j].vy += fy;
-      }
+  for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+    const dx=particles[j].x-particles[i].x, dy=particles[j].y-particles[i].y;
+    const dist=Math.sqrt(dx*dx+dy*dy), minD=PR*2.2;
+    if(dist<minD&&dist>0){
+      const f=(minD-dist)/minD*.5, fx=(dx/dist)*f, fy=(dy/dist)*f;
+      particles[i].vx-=fx; particles[i].vy-=fy;
+      particles[j].vx+=fx; particles[j].vy+=fy;
     }
   }
 }
 
 function draw(){
-  const dpr = window.devicePixelRatio || 1;
-  cv.width = cv.offsetWidth * dpr;
-  cv.height = (cv.offsetWidth / W * H) * dpr;
-  cx.scale(dpr, dpr);
-  const cw = cv.offsetWidth, ch = cv.offsetWidth / W * H;
-  const sc = cw / W;
-  cx.save();
-  cx.scale(sc, sc);
+  const dpr=window.devicePixelRatio||1;
+  cv.width=cv.offsetWidth*dpr; cv.height=(cv.offsetWidth/W*H)*dpr;
+  cx.scale(dpr,dpr);
+  const sc=cv.offsetWidth/W;
+  cx.save(); cx.scale(sc,sc);
 
-  const temp = +tempSlider.value;
-  const state = getState(temp);
-  const color = getColor(state);
+  const temp=+tempSlider.value, state=getState(temp), color=getColor(state);
+  cx.fillStyle='#050810'; cx.fillRect(0,0,W,H);
+  cx.strokeStyle='rgba(255,255,255,.12)'; cx.lineWidth=2; cx.strokeRect(BOX.x,BOX.y,BOX.w,BOX.h);
 
-  // Background
-  cx.fillStyle = '#050810';
-  cx.fillRect(0, 0, W, H);
-
-  // Container
-  cx.strokeStyle = 'rgba(255,255,255,.12)';
-  cx.lineWidth = 2;
-  cx.strokeRect(BOX.x, BOX.y, BOX.w, BOX.h);
-
-  // Container fill hint
-  if(state === 'liquid'){
-    const fillH = BOX.h * 0.45;
-    const grd = cx.createLinearGradient(0, BOX.y + BOX.h - fillH, 0, BOX.y + BOX.h);
-    grd.addColorStop(0, 'rgba(102,187,106,.03)');
-    grd.addColorStop(1, 'rgba(102,187,106,.08)');
-    cx.fillStyle = grd;
-    cx.fillRect(BOX.x, BOX.y + BOX.h - fillH, BOX.w, fillH);
+  if(state==='liquid'){
+    const fH=BOX.h*.45, gy=BOX.y+BOX.h-fH;
+    const grd=cx.createLinearGradient(0,gy,0,BOX.y+BOX.h);
+    grd.addColorStop(0,'rgba(102,187,106,.03)'); grd.addColorStop(1,'rgba(102,187,106,.08)');
+    cx.fillStyle=grd; cx.fillRect(BOX.x+3,gy,BOX.w-6,fH);
   }
 
-  // Draw bonds in solid state
-  if(state === 'solid'){
-    cx.strokeStyle = 'rgba(79,195,247,.1)';
-    cx.lineWidth = 1;
-    for(let i = 0; i < particles.length; i++){
-      for(let j = i+1; j < particles.length; j++){
-        const dx = particles[j].x - particles[i].x;
-        const dy = particles[j].y - particles[i].y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist < 35){
-          cx.beginPath();
-          cx.moveTo(particles[i].x, particles[i].y);
-          cx.lineTo(particles[j].x, particles[j].y);
-          cx.stroke();
-        }
+  // Bonds in solid
+  if(state==='solid'){
+    cx.strokeStyle='rgba(79,195,247,.1)'; cx.lineWidth=1;
+    for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+      const dx=particles[j].x-particles[i].x, dy=particles[j].y-particles[i].y;
+      if(Math.sqrt(dx*dx+dy*dy)<35){
+        cx.beginPath(); cx.moveTo(particles[i].x,particles[i].y); cx.lineTo(particles[j].x,particles[j].y); cx.stroke();
       }
     }
   }
 
   // Particles
-  particles.forEach(p => {
-    const speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
-    // Glow for fast particles
-    if(speed > 2){
-      cx.beginPath();
-      cx.arc(p.x, p.y, PARTICLE_R + 4, 0, Math.PI*2);
-      cx.fillStyle = color.replace(')', ',.12)').replace('rgb','rgba');
-      cx.fill();
-    }
-    // Particle
-    const g = cx.createRadialGradient(p.x - 1, p.y - 1, 0, p.x, p.y, PARTICLE_R);
-    g.addColorStop(0, '#fff');
-    g.addColorStop(0.3, color);
-    g.addColorStop(1, color.replace(')', ',.6)').replace('rgb','rgba'));
-    cx.beginPath();
-    cx.arc(p.x, p.y, PARTICLE_R, 0, Math.PI*2);
-    cx.fillStyle = g;
-    cx.fill();
-
-    // Velocity trail for gas/plasma
-    if((state === 'gas' || state === 'plasma') && speed > 1.5){
-      cx.beginPath();
-      cx.moveTo(p.x, p.y);
-      cx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3);
-      cx.strokeStyle = color.replace(')', ',.2)').replace('rgb','rgba');
-      cx.lineWidth = 2;
-      cx.stroke();
+  particles.forEach(p=>{
+    const speed=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+    if(speed>2){cx.beginPath();cx.arc(p.x,p.y,PR+4,0,Math.PI*2);cx.fillStyle=color.replace(')',',0.12)').replace('rgb','rgba');cx.fill();}
+    const g=cx.createRadialGradient(p.x-1,p.y-1,0,p.x,p.y,PR);
+    g.addColorStop(0,'#fff'); g.addColorStop(.3,color); g.addColorStop(1,color.replace(')',',0.6)').replace('rgb','rgba'));
+    cx.beginPath(); cx.arc(p.x,p.y,PR,0,Math.PI*2); cx.fillStyle=g; cx.fill();
+    if((state==='gas'||state==='plasma')&&speed>1.5){
+      cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x-p.vx*3,p.y-p.vy*3);
+      cx.strokeStyle=color.replace(')',',0.2)').replace('rgb','rgba'); cx.lineWidth=2; cx.stroke();
     }
   });
 
-  // Thermometer on the left
-  const thX = 25, thY = 80, thW = 18, thH = 340;
-  cx.fillStyle = 'rgba(0,0,0,.3)';
-  cx.beginPath();
-  cx.roundRect(thX, thY, thW, thH, 9);
-  cx.fill();
-  cx.strokeStyle = 'rgba(255,255,255,.08)';
-  cx.stroke();
-  // Fill
-  const fillPct = (temp + 40) / 240;
-  const fillH = thH * fillPct;
-  const thGrd = cx.createLinearGradient(0, thY + thH - fillH, 0, thY + thH);
-  thGrd.addColorStop(0, color);
-  thGrd.addColorStop(1, '#ef5350');
-  cx.fillStyle = thGrd;
-  cx.beginPath();
-  cx.roundRect(thX + 2, thY + thH - fillH, thW - 4, fillH, 7);
-  cx.fill();
-  // Marks
-  cx.fillStyle = 'rgba(255,255,255,.25)';
-  cx.font = '9px DM Sans';
-  cx.textAlign = 'right';
-  [{t:'200°C',y:thY+5},{t:'100°C',y:thY+thH*0.42},{t:'0°C',y:thY+thH*0.58+5},{t:'-40°C',y:thY+thH-2}].forEach(m => cx.fillText(m.t, thX-3, m.y));
-  // Phase markers
-  cx.fillStyle = 'rgba(255,255,255,.12)';
-  cx.fillRect(thX, thY + thH * (1 - (0+40)/240), thW, 1); // 0°C
-  cx.fillRect(thX, thY + thH * (1 - (100+40)/240), thW, 1); // 100°C
+  // Thermometer
+  const thX=25,thY=80,thW=18,thH=340;
+  cx.fillStyle='rgba(0,0,0,.3)'; cx.beginPath(); cx.roundRect(thX,thY,thW,thH,9); cx.fill();
+  cx.strokeStyle='rgba(255,255,255,.08)'; cx.stroke();
+  const fillPct=(temp+40)/240, fillH=thH*fillPct;
+  const tg=cx.createLinearGradient(0,thY+thH-fillH,0,thY+thH);
+  tg.addColorStop(0,color); tg.addColorStop(1,'#ef5350');
+  cx.fillStyle=tg; cx.beginPath(); cx.roundRect(thX+2,thY+thH-fillH,thW-4,fillH,7); cx.fill();
+  cx.fillStyle='rgba(255,255,255,.25)'; cx.font='9px DM Sans'; cx.textAlign='right';
+  [{t:'200°C',y:thY+5},{t:'100°C',y:thY+thH*.42},{t:'0°C',y:thY+thH*.58+5},{t:'-40°C',y:thY+thH-2}].forEach(m=>cx.fillText(m.t,thX-3,m.y));
+  cx.fillStyle='rgba(255,255,255,.12)';
+  cx.fillRect(thX,thY+thH*(1-(0+40)/240),thW,1);
+  cx.fillRect(thX,thY+thH*(1-(100+40)/240),thW,1);
+  cx.restore();
 
   // Labels
-  cx.fillStyle = 'rgba(255,255,255,.15)';
-  cx.font = '9px DM Sans';
-  cx.textAlign = 'center';
-  cx.save();
-  cx.translate(12, thY + thH * 0.8);
-  cx.rotate(-Math.PI/2);
-  cx.fillText('SOLIDO', 0, 0);
-  cx.restore();
-  cx.save();
-  cx.translate(12, thY + thH * 0.48);
-  cx.rotate(-Math.PI/2);
-  cx.fillText('LIQUIDO', 0, 0);
-  cx.restore();
-  cx.save();
-  cx.translate(12, thY + thH * 0.2);
-  cx.rotate(-Math.PI/2);
-  cx.fillText('GAS', 0, 0);
-  cx.restore();
-
-  cx.restore();
-
-  // Update labels
-  const avgEk = particles.reduce((s,p) => s + (p.vx*p.vx + p.vy*p.vy), 0) / particles.length;
-  document.getElementById('stateLabel').textContent = getStateLabel(state);
-  document.getElementById('tempLabel').textContent = temp + '°C';
-  document.getElementById('countLabel').textContent = particles.length;
-  document.getElementById('ekLabel').textContent = avgEk.toFixed(1) + ' u';
-  document.getElementById('tempVal').textContent = temp + '°C';
-
-  const badge = document.getElementById('stateBadge');
-  badge.textContent = getStateLabel(state);
-  badge.className = 'state-badge state-' + state;
+  const avgEk=particles.reduce((s,p)=>s+(p.vx*p.vx+p.vy*p.vy),0)/particles.length;
+  document.getElementById('stateLabel').textContent=getStateIt(state);
+  document.getElementById('tempLabel').textContent=temp+'°C';
+  document.getElementById('countLabel').textContent=particles.length;
+  document.getElementById('ekLabel').textContent=avgEk.toFixed(1);
+  document.getElementById('tempVal').textContent=temp+'°C';
+  const badge=document.getElementById('stateBadge');
+  badge.textContent=getStateIt(state); badge.className='state-badge state-'+state;
 
   // Readout
-  let readout = '';
-  if(state === 'solid'){
-    readout = '<strong>Solido:</strong> le particelle vibrano intorno a posizioni fisse. I legami tra di loro (linee tratteggiate) le tengono in un reticolo ordinato. Per questo i solidi mantengono la forma!';
-    if(currentLevel >= 2) readout += '<br><br><strong>Indaga:</strong> L\'energia cinetica \u00e8 bassa. Le forze intermolecolari dominano e mantengono la struttura. La temperatura a cui il solido inizia a fondere (0\u00b0C per l\'acqua) \u00e8 il <em>punto di fusione</em>.';
-    if(currentLevel >= 3) readout += '<br><br><strong>Approfondisci:</strong> Nel reticolo cristallino le particelle occupano posizioni a minima energia potenziale. Le vibrazioni sono quantizzate (fononi nel modello di Debye). L\'ampiezza di vibrazione \u00e8 proporzionale a \u221aT.';
-  } else if(state === 'liquid'){
-    readout = '<strong>Liquido:</strong> le particelle si muovono liberamente ma restano vicine tra loro. Per questo i liquidi prendono la forma del contenitore ma non si espandono come i gas. Nota come si raccolgono in basso per la gravit\u00e0!';
-    if(currentLevel >= 2) readout += '<br><br><strong>Indaga:</strong> L\'energia cinetica \u00e8 sufficiente per rompere il reticolo cristallino, ma le forze intermolecolari mantengono le particelle vicine. La <em>viscosit\u00e0</em> misura la resistenza al flusso.';
-    if(currentLevel >= 3) readout += '<br><br><strong>Approfondisci:</strong> Il passaggio solido\u2192liquido (fusione) avviene a temperatura costante: l\'energia fornita (calore latente di fusione, 334 J/g per l\'acqua) rompe i legami del reticolo senza aumentare la temperatura. L\'acqua \u00e8 anomala: il ghiaccio \u00e8 meno denso del liquido (legami idrogeno).';
-  } else if(state === 'gas'){
-    readout = '<strong>Gas:</strong> le particelle volano in tutte le direzioni, rimbalzando contro le pareti del contenitore. Nota le scie di velocit\u00e0! Un gas riempie tutto lo spazio disponibile.';
-    if(currentLevel >= 2) readout += '<br><br><strong>Indaga:</strong> L\'energia cinetica supera le forze intermolecolari. Le particelle si muovono in linea retta fino a quando non collidono. La <em>pressione</em> \u00e8 la forza delle particelle che urtano le pareti.';
-    if(currentLevel >= 3) readout += '<br><br><strong>Approfondisci:</strong> Per un gas ideale: PV = nRT. L\'energia cinetica media \u00e8 E = 3/2 kT. La distribuzione delle velocit\u00e0 segue Maxwell-Boltzmann. Il calore latente di vaporizzazione dell\'acqua (2260 J/g) \u00e8 molto maggiore di quello di fusione: servono legami molto pi\u00f9 forti da rompere.';
+  let rd='';
+  if(state==='solid'){
+    rd='<strong>Solido:</strong> le particelle tremano ferme al loro posto, tenute insieme dai legami (le linee che vedi). Per questo i solidi mantengono la forma: provaci, prendi in mano un sasso e non si deforma!';
+    if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> L\'energia cinetica \u00e8 bassa. Le forze intermolecolari dominano. La temperatura di fusione (0\u00b0C per l\'acqua) \u00e8 il punto in cui l\'energia \u00e8 sufficiente a rompere il reticolo.';
+    if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Le vibrazioni nel reticolo sono quantizzate (fononi). L\'ampiezza \u221d \u221aT. Durante la fusione, la temperatura resta costante: il calore latente (334 J/g per l\'acqua) rompe i legami senza aumentare la temperatura.';
+  } else if(state==='liquid'){
+    rd='<strong>Liquido:</strong> le particelle si muovono liberamente ma restano vicine. Per questo l\'acqua prende la forma del bicchiere ma non vola via! Nota come si raccolgono in basso: \u00e8 la gravit\u00e0.';
+    if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> I legami del reticolo sono rotti ma le forze intermolecolari mantengono le particelle vicine. La viscosit\u00e0 misura quanto un liquido "resiste" a scorrere: il miele \u00e8 pi\u00f9 viscoso dell\'acqua.';
+    if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> L\'acqua \u00e8 anomala: il ghiaccio \u00e8 meno denso del liquido (legami idrogeno). Calore latente di vaporizzazione: 2260 J/g, quasi 7 volte quello di fusione.';
+  } else if(state==='gas'){
+    rd='<strong>Gas:</strong> le particelle volano in tutte le direzioni e rimbalzano contro le pareti. Nota le scie arancioni: vanno velocissime! Per questo un gas riempie tutto lo spazio disponibile (come il profumo che si sente in tutta la stanza).';
+    if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> L\'energia cinetica supera le forze intermolecolari. La pressione \u00e8 l\'effetto degli urti delle particelle contro le pareti. Pi\u00f9 particelle o pi\u00f9 velocit\u00e0 = pi\u00f9 pressione.';
+    if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Gas ideale: PV = nRT. Energia cinetica media: E = 3/2 kT. La distribuzione delle velocit\u00e0 segue Maxwell-Boltzmann: non tutte le particelle hanno la stessa velocit\u00e0!';
   } else {
-    readout = '<strong>Plasma:</strong> a temperature altissime le particelle si muovono cos\u00ec velocemente che gli elettroni si staccano dagli atomi! Il plasma \u00e8 il quarto stato della materia: le stelle sono fatte di plasma.';
-    if(currentLevel >= 2) readout += '<br><br><strong>Indaga:</strong> Il plasma \u00e8 un gas ionizzato: gli atomi perdono elettroni a causa dell\'enorme energia. \u00c8 lo stato pi\u00f9 comune nell\'universo (stelle, nebulose, fulmini, insegne al neon).';
-    if(currentLevel >= 3) readout += '<br><br><strong>Approfondisci:</strong> Il plasma si forma quando kT \u2248 energia di ionizzazione. \u00c8 elettricamente conduttivo e risponde ai campi elettromagnetici (confinamento magnetico nei tokamak per la fusione nucleare). La lunghezza di Debye \u03bb_D = \u221a(\u03b5\u2080kT/nq\u00b2) definisce la scala di schermatura delle cariche.';
+    rd='<strong>Plasma!</strong> A temperature altissime le particelle impazziscono e gli elettroni si staccano dagli atomi. \u00c8 il quarto stato della materia. Dove lo trovi? Nelle stelle! Il Sole \u00e8 una gigantesca palla di plasma. Anche i fulmini e le insegne al neon sono plasma.';
+    if(currentLevel>=2) rd+='<br><br><strong>Indaga:</strong> Il plasma \u00e8 un gas ionizzato. \u00c8 lo stato pi\u00f9 comune nell\'universo (>99% della materia visibile). Conduce l\'elettricit\u00e0 e risponde ai campi magnetici.';
+    if(currentLevel>=3) rd+='<br><br><strong>Approfondisci:</strong> Si forma quando kT \u2248 energia di ionizzazione. Confinamento magnetico nei tokamak per la fusione nucleare. Lunghezza di Debye \u03bb_D = \u221a(\u03b5\u2080kT/nq\u00b2).';
   }
-  document.getElementById('readout').innerHTML = readout;
+  document.getElementById('readout').innerHTML=rd;
 }
 
-function loop(){
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-
-setTimeout(loop, 150);
-window.addEventListener('resize', draw);
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+setTimeout(loop,150);
+window.addEventListener('resize',draw);
 </script>
 </body>
 </html>

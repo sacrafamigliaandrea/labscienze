@@ -102,8 +102,21 @@ a { color: var(--space-accent); text-decoration: none; }
 .section-panel h3 { font-size: 1rem; font-weight: 600; color: var(--corona); margin: 16px 0 8px; }
 .section-panel p { font-size: .86rem; line-height: 1.7; color: rgba(255,255,255,.7); margin-bottom: 10px; }
 
-/* === CURRICOLO BOX === */
-.curricolo-box { background: rgba(79,195,247,.05); border: 1px solid rgba(79,195,247,.12); border-radius: var(--radius); padding: 14px 16px; margin: 12px 0; }
+/* === CURRICOLO BOX (toggle docente) === */
+.curricolo-toggle { display:flex; align-items:center; gap:6px; cursor:pointer; margin:12px 0 0; padding:8px 14px; border-radius:var(--radius); background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05); transition:var(--transition); width:fit-content; }
+.curricolo-toggle:hover { border-color:rgba(255,255,255,.12); }
+.curricolo-toggle svg { width:14px; height:14px; color:rgba(255,255,255,.25); transition:var(--transition); }
+.curricolo-toggle span { font-size:.65rem; color:rgba(255,255,255,.25); text-transform:uppercase; letter-spacing:1px; font-weight:500; }
+.curricolo-toggle.open svg { transform:rotate(90deg); color:var(--space-accent); }
+.curricolo-toggle.open span { color:var(--space-accent); }
+.curricolo-box { background: rgba(79,195,247,.05); border: 1px solid rgba(79,195,247,.12); border-radius: var(--radius); padding: 0 16px; margin: 0; max-height:0; overflow:hidden; opacity:0; transition: max-height .4s ease, opacity .3s ease, padding .3s ease, margin .3s ease; }
+.curricolo-box.visible { max-height:500px; opacity:1; padding: 14px 16px; margin: 8px 0 12px; }
+/* === SFIDE (micro-challenges) === */
+.challenge-box { background:rgba(255,204,2,.04); border:1px solid rgba(255,204,2,.12); border-radius:var(--radius); padding:14px 16px; margin:12px 0; }
+.challenge-box .ch-title { font-size:.7rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--corona); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.challenge-box .ch-title svg { width:14px; height:14px; }
+.challenge-item { font-size:.8rem; color:rgba(255,255,255,.6); line-height:1.6; margin-bottom:6px; padding-left:20px; position:relative; }
+.challenge-item::before { content:'\25B8'; position:absolute; left:4px; top:0; color:var(--corona); font-size:.7rem; }
 .curricolo-box .curricolo-title { font-size: .65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--space-accent); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .curricolo-box .curricolo-title svg { width: 13px; height: 13px; }
 .curricolo-obj { font-size: .78rem; color: rgba(255,255,255,.55); line-height: 1.6; margin-bottom: 5px; padding-left: 14px; position: relative; }
@@ -204,3 +217,94 @@ a { color: var(--space-accent); text-decoration: none; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(79,195,247,.2); border-radius: 3px; }
+
+/* === TEACHER TOGGLE (curricolo box) === */
+.teacher-toggle {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.02);
+  color: rgba(255,255,255,.3);
+  font-family: var(--font-body); font-size: .65rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  margin-top: 10px; width: fit-content;
+}
+.teacher-toggle:hover { border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.5); }
+.teacher-toggle svg { width: 13px; height: 13px; }
+.teacher-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .4s ease, opacity .3s ease, margin .3s ease; margin-top: 0; }
+.teacher-content.open { max-height: 500px; opacity: 1; margin-top: 10px; }
+
+/* === SOCRATIC INTRO === */
+.intro-question {
+  font-family: var(--font-display); font-size: 1.15rem; font-weight: 600;
+  color: var(--corona); line-height: 1.5;
+  margin-bottom: 10px;
+  padding-left: 16px;
+  border-left: 3px solid var(--corona);
+}
+
+/* === MISSION CARDS === */
+.missions-section { margin-top: 16px; }
+.missions-title {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--nucleo-color, var(--space-accent)); font-weight: 600;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.missions-title svg { width: 14px; height: 14px; }
+.mission-list { display: flex; flex-direction: column; gap: 8px; }
+.mission-card {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius);
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.05);
+  transition: var(--transition);
+  cursor: pointer;
+}
+.mission-card:hover { border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
+.mission-card.completed { border-color: rgba(102,187,106,.25); background: rgba(102,187,106,.04); }
+.mission-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  color: var(--nucleo-color, var(--space-accent));
+  font-size: .7rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.mission-card.completed .mission-num { background: rgba(102,187,106,.15); color: #66bb6a; }
+.mission-text { flex: 1; }
+.mission-text p { font-size: .8rem; color: rgba(255,255,255,.6); line-height: 1.5; margin: 0; }
+.mission-text .mission-hint {
+  font-size: .7rem; color: rgba(255,255,255,.3); margin-top: 4px;
+  display: none; font-style: italic;
+}
+.mission-card.show-hint .mission-hint { display: block; }
+.mission-check { font-size: .7rem; color: rgba(255,255,255,.25); padding-top: 2px; }
+.mission-card.completed .mission-check { color: #66bb6a; }
+
+/* === THINK QUESTION (metacognitive) === */
+.think-box {
+  background: rgba(255,204,2,.04);
+  border: 1px solid rgba(255,204,2,.12);
+  border-left: 3px solid var(--corona);
+  border-radius: var(--radius);
+  padding: 14px 16px; margin-top: 14px;
+}
+.think-box .think-q { font-size: .85rem; color: rgba(255,255,255,.7); line-height: 1.6; }
+.think-box .think-q strong { color: var(--corona); }
+.think-answer {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height .3s ease, opacity .3s ease, margin .3s ease;
+  margin-top: 0;
+}
+.think-answer.open { max-height: 200px; opacity: 1; margin-top: 10px; }
+.think-answer p { font-size: .8rem; color: rgba(255,255,255,.55); line-height: 1.6; }
+.think-reveal {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: 6px; margin-top: 8px;
+  border: 1px solid rgba(255,204,2,.15);
+  background: rgba(255,204,2,.05);
+  color: var(--corona); font-family: var(--font-body);
+  font-size: .7rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition);
+}
+.think-reveal:hover { background: rgba(255,204,2,.12); }
