@@ -3,345 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laboratorio Scientifico — SacraFamiglia education</title>
+<title>Laboratorio Scientifico — Scuola Sacra Famiglia</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
 <style>
-/* === INDEX-SPECIFIC === */
-.hero { text-align: center; padding: 50px 20px 30px; }
-.hero-logo { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 16px; border: 2px solid rgba(255,255,255,.1); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-.hero h1 {
-  font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
-  background: linear-gradient(135deg, var(--space-accent) 0%, var(--corona) 50%, var(--space-accent) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  animation: shimmer 6s linear infinite;
+:root {
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --space-bg: #0e1525;
+  --space-accent: #4fc3f7;
+  --corona: #ffcc02;
+  --n1: #4fc3f7; --n2: #ffa726; --n3: #66bb6a; --n4: #4dd0e1; --n5: #ab47bc;
+  --radius-lg: 20px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-@keyframes shimmer { to { background-position: 200% center; } }
-.hero .subtitle { font-size: 1rem; color: rgba(255,255,255,.45); font-weight: 300; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
-.hero .brand-tag { margin-top: 14px; }
-.hero-desc { max-width: 680px; margin: 18px auto 0; font-size: .88rem; color: rgba(255,255,255,.5); line-height: 1.7; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font-body); background:var(--space-bg); color:#fff; min-height:100vh; overflow-x:hidden; }
 
-/* NUCLEI GRID */
-.nuclei-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 30px; }
-.nucleo-card {
-  background: rgba(255,255,255,.03);
-  border: 1px solid var(--nc-border, rgba(255,255,255,.08));
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  cursor: pointer;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
+.site-header { text-align:center; padding:30px 20px 10px; }
+.header-row { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:8px; }
+.header-logo { width:64px; height:64px; border-radius:50%; border:2px solid rgba(255,255,255,.1); box-shadow:0 4px 16px rgba(0,0,0,.3); }
+.header-text h1 {
+  font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.6rem); font-weight:800;
+  background:linear-gradient(135deg, var(--space-accent), var(--corona), var(--space-accent));
+  background-size:200% auto; animation:shimmer 6s linear infinite;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  text-align:left;
 }
-.nucleo-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 4px;
-  background: var(--nc, var(--space-accent));
-  opacity: .6;
-}
-.nucleo-card:hover { border-color: var(--nc, var(--space-accent)); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
-.nucleo-card.expanded { border-color: var(--nc, var(--space-accent)); }
-.nc-header { display: flex; align-items: flex-start; gap: 16px; }
-.nc-icon {
-  width: 50px; height: 50px; border-radius: 14px;
-  background: var(--nc-bg, rgba(79,195,247,.1));
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.nc-icon svg { width: 26px; height: 26px; color: var(--nc, var(--space-accent)); }
-.nc-info { flex: 1; }
-.nc-info .nc-num { font-size: .6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--nc, var(--space-accent)); font-weight: 600; margin-bottom: 2px; }
-.nc-info h2 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--bianco); line-height: 1.3; }
-.nc-desc { font-size: .8rem; color: rgba(255,255,255,.45); margin-top: 10px; line-height: 1.6; }
-.nc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
-.nc-tag { padding: 3px 10px; border-radius: 12px; font-size: .62rem; font-weight: 500; background: rgba(255,255,255,.05); color: rgba(255,255,255,.4); border: 1px solid rgba(255,255,255,.06); }
-.nc-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px; border-radius: 12px;
-  font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
-  margin-top: 12px;
-}
-.nc-badge.ready { background: rgba(79,195,247,.12); color: var(--space-accent); }
-.nc-badge.soon { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); }
+@keyframes shimmer { to { background-position:200% center; } }
+.header-text .sub { font-size:.82rem; color:rgba(255,255,255,.4); font-weight:300; letter-spacing:2px; text-transform:uppercase; text-align:left; }
+.curricolo-ref { font-size:.68rem; color:rgba(255,255,255,.25); font-style:italic; margin-top:6px; }
 
-/* EXPANDED EXPERIMENTS LIST */
-.nc-experiments {
-  max-height: 0; overflow: hidden;
-  transition: max-height .4s ease, margin .3s ease, opacity .3s ease;
-  opacity: 0; margin-top: 0;
-}
-.nucleo-card.expanded .nc-experiments { max-height: 600px; opacity: 1; margin-top: 18px; }
-.nc-exp-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.05);
-  margin-bottom: 8px;
-  text-decoration: none;
-  color: var(--bianco);
-  transition: var(--transition);
-}
-.nc-exp-item:hover { background: rgba(255,255,255,.06); border-color: var(--nc, var(--space-accent)); transform: translateX(4px); }
-.nc-exp-item.disabled { opacity: .35; pointer-events: none; }
-.nc-exp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nc, var(--space-accent)); flex-shrink: 0; }
-.nc-exp-text h5 { font-size: .82rem; font-weight: 600; }
-.nc-exp-text p { font-size: .68rem; color: rgba(255,255,255,.4); margin-top: 1px; }
-.nc-exp-arrow { margin-left: auto; color: rgba(255,255,255,.2); font-size: .9rem; }
-.nc-exp-item:hover .nc-exp-arrow { color: var(--nc, var(--space-accent)); }
+.level-bar { display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 0; flex-wrap:wrap; }
+.level-label { font-size:.7rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; }
+.level-btn { padding:6px 14px; border-radius:30px; border:1.5px solid rgba(255,255,255,.1); background:rgba(255,255,255,.03); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.72rem; font-weight:500; cursor:pointer; transition:var(--transition); }
+.level-btn:hover { border-color:var(--space-accent); color:var(--space-accent); }
+.level-btn.active { background:rgba(79,195,247,.1); border-color:var(--space-accent); color:var(--space-accent); }
 
-/* FOOTER */
-.footer { text-align: center; padding: 40px 20px 30px; border-top: 1px solid rgba(255,255,255,.04); margin-top: 20px; }
-.footer p { font-size: .68rem; color: rgba(255,255,255,.25); margin-bottom: 4px; }
-.footer p strong { color: rgba(255,255,255,.4); }
-.footer a { color: rgba(79,195,247,.4); }
+.pyramid-wrap { position:relative; max-width:1000px; margin:16px auto; padding:0 16px; }
+.pyramid-img { width:100%; display:block; border-radius:var(--radius-lg); box-shadow:0 8px 40px rgba(0,0,0,.4); }
+
+.layer-link {
+  position:absolute; left:25%; right:2%;
+  cursor:pointer; border-radius:10px;
+  transition:var(--transition);
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none;
+}
+.layer-link:hover { background:rgba(255,255,255,.08); box-shadow:inset 0 0 0 2px rgba(255,255,255,.15), 0 0 30px rgba(255,255,255,.05); }
+.layer-link:hover .layer-tooltip { opacity:1; transform:translateX(-50%) translateY(0); }
+.layer-tooltip {
+  position:absolute; bottom:100%; left:50%; transform:translateX(-50%) translateY(6px);
+  background:rgba(14,21,37,.92); border:1px solid rgba(255,255,255,.12);
+  border-radius:10px; padding:10px 16px;
+  white-space:nowrap; pointer-events:none;
+  opacity:0; transition:var(--transition);
+  box-shadow:0 8px 24px rgba(0,0,0,.4); z-index:10;
+}
+.layer-tooltip h4 { font-size:.82rem; font-weight:600; margin-bottom:2px; }
+.layer-tooltip p { font-size:.68rem; color:rgba(255,255,255,.45); }
+.layer-tooltip .arrow-hint { font-size:.6rem; color:var(--space-accent); margin-top:4px; }
+
+.layer-n5 { top:2%;  height:18%; }
+.layer-n4 { top:20%; height:18%; }
+.layer-n3 { top:38%; height:18%; }
+.layer-n2 { top:56%; height:19%; }
+.layer-n1 { top:75%; height:20%; }
+
+.layer-n5:hover { background:rgba(171,71,188,.1); box-shadow:inset 0 0 0 2px rgba(171,71,188,.25); }
+.layer-n4:hover { background:rgba(77,208,225,.1); box-shadow:inset 0 0 0 2px rgba(77,208,225,.25); }
+.layer-n3:hover { background:rgba(102,187,106,.1); box-shadow:inset 0 0 0 2px rgba(102,187,106,.25); }
+.layer-n2:hover { background:rgba(255,167,38,.1); box-shadow:inset 0 0 0 2px rgba(255,167,38,.25); }
+.layer-n1:hover { background:rgba(79,195,247,.1); box-shadow:inset 0 0 0 2px rgba(79,195,247,.25); }
+
+@media(max-width:600px) {
+  .layer-link { left:2%; }
+  .layer-tooltip { display:none; }
+}
+
+.quick-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:16px 20px; max-width:1000px; margin:0 auto; }
+.qn-btn { padding:8px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.72rem; font-weight:500; cursor:pointer; transition:var(--transition); text-decoration:none; display:flex; align-items:center; gap:6px; }
+.qn-btn:hover { border-color:rgba(255,255,255,.2); color:#fff; transform:translateY(-1px); }
+.qn-dot { width:8px; height:8px; border-radius:50%; }
+
+.site-footer { text-align:center; padding:30px 20px; border-top:1px solid rgba(255,255,255,.04); margin-top:10px; max-width:1000px; margin-left:auto; margin-right:auto; }
+.site-footer p { font-size:.65rem; color:rgba(255,255,255,.2); margin-bottom:3px; }
+.site-footer strong { color:rgba(255,255,255,.35); }
+.footer-logo { width:50px; height:50px; border-radius:50%; opacity:.4; margin-bottom:8px; }
 </style>
 </head>
 <body>
 
-<div class="stars-container" id="starsContainer"></div>
+  <header class="site-header">
+    <div class="header-row">
+      <img src="logo.jpg" alt="Sacra Famiglia" class="header-logo">
+      <div class="header-text">
+        <h1>Laboratorio Scientifico</h1>
+        <div class="sub">Esplora &middot; sperimenta &middot; scopri</div>
+      </div>
+    </div>
+    <div class="curricolo-ref">Nuove Indicazioni Nazionali 2025 &mdash; Scienze, primo ciclo di istruzione &mdash; Dalla 3&ordf; Primaria alla 3&ordf; Secondaria</div>
+  </header>
 
-<div class="app-container">
-  <!-- HERO -->
-  <div class="hero">
-    <img src="logo.jpg" alt="Scuola Sacra Famiglia" class="hero-logo">
-    <h1>Laboratorio Scientifico</h1>
-    <div class="subtitle">Esplora &middot; sperimenta &middot; scopri</div>
-    <p class="hero-desc">
-      Simulazioni interattive ed esperimenti virtuali dalla 3&ordf; Primaria alla 3&ordf; Secondaria.<br>
-      Scegli un nucleo tematico e inizia a esplorare. Ogni esperimento ha tre livelli di profondit&agrave;: tu decidi fin dove andare.
-    </p>
+  <div class="level-bar">
+    <span class="level-label">Livello</span>
+    <button class="level-btn active" data-level="1" onclick="setLvl(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="level-btn" data-level="2" onclick="setLvl(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="level-btn" data-level="3" onclick="setLvl(3)">2&ordf;-3&ordf; Secondaria</button>
   </div>
 
-  <div class="curricolo-ref">Percorso allineato alle Nuove Indicazioni Nazionali 2025 &mdash; Scienze, primo ciclo di istruzione</div>
-
-  <!-- LEVEL SELECTOR -->
-  <div class="complexity-bar">
-    <span class="complexity-label">Livello</span>
-    <button class="complexity-btn active" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
-    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
-    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  <div class="pyramid-wrap">
+    <img src="laboscienze.jpg" alt="I 5 nuclei del Laboratorio Scientifico" class="pyramid-img">
+    <a href="n1-particelle.html" class="layer-link layer-n1"><div class="layer-tooltip"><h4 style="color:var(--n1)">1. Materia e trasformazioni</h4><p>Particelle, stati della materia, miscugli, reazioni</p><div class="arrow-hint">Clicca per esplorare &rsaquo;</div></div></a>
+    <a href="n2-leve.html" class="layer-link layer-n2"><div class="layer-tooltip"><h4 style="color:var(--n2)">2. Forze, movimento ed energia</h4><p>Leve, circuiti elettrici, onde sonore e luminose</p><div class="arrow-hint">Clicca per esplorare &rsaquo;</div></div></a>
+    <a href="n3-cellula.html" class="layer-link layer-n3"><div class="layer-tooltip"><h4 style="color:var(--n3)">3. Esseri viventi e corpo umano</h4><p>Cellula, ecosistemi, genetica mendeliana</p><div class="arrow-hint">Clicca per esplorare &rsaquo;</div></div></a>
+    <a href="n4-ciclo-acqua.html" class="layer-link layer-n4"><div class="layer-tooltip"><h4 style="color:var(--n4)">4. Scienze della Terra e ambiente</h4><p>Ciclo dell'acqua, vulcani, clima ed effetto serra</p><div class="arrow-hint">Clicca per esplorare &rsaquo;</div></div></a>
+    <a href="n5-artemis.html" class="layer-link layer-n5"><div class="layer-tooltip"><h4 style="color:var(--n5)">5. Astronomia e spazio</h4><p>Missione Artemis II, orbite, sistema solare</p><div class="arrow-hint">Clicca per esplorare &rsaquo;</div></div></a>
   </div>
 
-  <!-- NUCLEI GRID -->
-  <div class="nuclei-grid" id="nucleiGrid">
+  <nav class="quick-nav">
+    <a href="n1-particelle.html" class="qn-btn"><span class="qn-dot" style="background:var(--n1)"></span>Particelle</a>
+    <a href="n1-miscugli.html" class="qn-btn"><span class="qn-dot" style="background:var(--n1)"></span>Miscugli</a>
+    <a href="n1-reazioni.html" class="qn-btn"><span class="qn-dot" style="background:var(--n1)"></span>Reazioni</a>
+    <a href="n2-leve.html" class="qn-btn"><span class="qn-dot" style="background:var(--n2)"></span>Leve</a>
+    <a href="n2-circuiti.html" class="qn-btn"><span class="qn-dot" style="background:var(--n2)"></span>Circuiti</a>
+    <a href="n2-onde.html" class="qn-btn"><span class="qn-dot" style="background:var(--n2)"></span>Onde</a>
+    <a href="n3-cellula.html" class="qn-btn"><span class="qn-dot" style="background:var(--n3)"></span>Cellula</a>
+    <a href="n3-ecosistema.html" class="qn-btn"><span class="qn-dot" style="background:var(--n3)"></span>Ecosistema</a>
+    <a href="n3-genetica.html" class="qn-btn"><span class="qn-dot" style="background:var(--n3)"></span>Genetica</a>
+    <a href="n4-ciclo-acqua.html" class="qn-btn"><span class="qn-dot" style="background:var(--n4)"></span>Ciclo acqua</a>
+    <a href="n4-vulcano.html" class="qn-btn"><span class="qn-dot" style="background:var(--n4)"></span>Vulcano</a>
+    <a href="n4-clima.html" class="qn-btn"><span class="qn-dot" style="background:var(--n4)"></span>Clima</a>
+    <a href="n5-artemis.html" class="qn-btn"><span class="qn-dot" style="background:var(--n5)"></span>Artemis II</a>
+  </nav>
 
-    <!-- N1: MATERIA -->
-    <div class="nucleo-card" style="--nc:var(--n1);--nc-bg:var(--n1bg);--nc-border:var(--n1border)" onclick="toggleNucleo(this)">
-      <div class="nc-header">
-        <div class="nc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg>
-        </div>
-        <div class="nc-info">
-          <div class="nc-num">Nucleo 1</div>
-          <h2>Materia e trasformazioni</h2>
-        </div>
-      </div>
-      <p class="nc-desc">Dagli stati della materia alle reazioni chimiche. Osserva le particelle, mescola sostanze, bilancia equazioni.</p>
-      <div class="nc-tags">
-        <span class="nc-tag">Particelle</span>
-        <span class="nc-tag">Stati della materia</span>
-        <span class="nc-tag">Reazioni chimiche</span>
-        <span class="nc-tag">Atomi</span>
-      </div>
-      <div class="nc-badge ready">Disponibile</div>
-      <div class="nc-experiments">
-        <a href="n1-particelle.html" class="nc-exp-item">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Simulatore particelle</h5><p>Stati della materia, temperatura, pressione</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n1-miscugli.html" class="nc-exp-item">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Laboratorio miscugli</h5><p>Mescola, filtra, separa, dissolvi</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n1-reazioni.html" class="nc-exp-item">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Bilanciamento reazioni</h5><p>Costruisci e bilancia equazioni chimiche</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- N2: FORZE -->
-    <div class="nucleo-card" style="--nc:var(--n2);--nc-bg:var(--n2bg);--nc-border:var(--n2border)" onclick="toggleNucleo(this)">
-      <div class="nc-header">
-        <div class="nc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </div>
-        <div class="nc-info">
-          <div class="nc-num">Nucleo 2</div>
-          <h2>Forze, movimento ed energia</h2>
-        </div>
-      </div>
-      <p class="nc-desc">Dalle leve ai circuiti elettrici, dalle onde alla conservazione dell'energia. Sperimenta le leggi della fisica.</p>
-      <div class="nc-tags">
-        <span class="nc-tag">Leve</span>
-        <span class="nc-tag">Circuiti</span>
-        <span class="nc-tag">Onde</span>
-        <span class="nc-tag">Energia</span>
-      </div>
-      <div class="nc-badge ready">Disponibile</div>
-      <div class="nc-experiments">
-        <a href="n2-leve.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Laboratorio leve</h5><p>Bilancia, leve di 1°-2°-3° genere, macchine semplici</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n2-circuiti.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Costruttore circuiti</h5><p>Batterie, lampadine, interruttori, legge di Ohm</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n2-onde.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Simulatore onde</h5><p>Suono, luce, interferenza, diffrazione</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- N3: VIVENTI -->
-    <div class="nucleo-card" style="--nc:var(--n3);--nc-bg:var(--n3bg);--nc-border:var(--n3border)" onclick="toggleNucleo(this)">
-      <div class="nc-header">
-        <div class="nc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div class="nc-info">
-          <div class="nc-num">Nucleo 3</div>
-          <h2>Esseri viventi e corpo umano</h2>
-        </div>
-      </div>
-      <p class="nc-desc">Dalla cellula alla genetica, dagli ecosistemi all'evoluzione. Esplora la vita a ogni scala.</p>
-      <div class="nc-tags">
-        <span class="nc-tag">Cellula</span>
-        <span class="nc-tag">Fotosintesi</span>
-        <span class="nc-tag">Genetica</span>
-        <span class="nc-tag">Ecosistemi</span>
-      </div>
-      <div class="nc-badge ready">Disponibile</div>
-      <div class="nc-experiments">
-        <a href="n3-cellula.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>La cellula esplorabile</h5><p>Zoom progressivo, organelli, animale vs vegetale</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n3-ecosistema.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Simulatore ecosistema</h5><p>Catena alimentare, popolazione, biodiversit&agrave;</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n3-genetica.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Incroci mendeliani</h5><p>Costruttore di incroci, quadrato di Punnett</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- N4: TERRA -->
-    <div class="nucleo-card" style="--nc:var(--n4);--nc-bg:var(--n4bg);--nc-border:var(--n4border)" onclick="toggleNucleo(this)">
-      <div class="nc-header">
-        <div class="nc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        </div>
-        <div class="nc-info">
-          <div class="nc-num">Nucleo 4</div>
-          <h2>Scienze della Terra e ambiente</h2>
-        </div>
-      </div>
-      <p class="nc-desc">Dal ciclo dell'acqua ai vulcani, dall'effetto serra alla sostenibilit&agrave;. Comprendi il pianeta che abiti.</p>
-      <div class="nc-tags">
-        <span class="nc-tag">Ciclo acqua</span>
-        <span class="nc-tag">Vulcani</span>
-        <span class="nc-tag">Clima</span>
-        <span class="nc-tag">Sostenibilit&agrave;</span>
-      </div>
-      <div class="nc-badge ready">Disponibile</div>
-      <div class="nc-experiments">
-        <a href="n4-ciclo-acqua.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Ciclo dell'acqua</h5><p>Evaporazione, nuvole, precipitazione, infiltrazione</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n4-vulcano.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Simulatore vulcano</h5><p>Sezione della Terra, tipi di eruzione, tettonica</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n4-clima.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Laboratorio clima</h5><p>Effetto serra, bilancio energetico, proiezioni</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- N5: SPAZIO -->
-    <div class="nucleo-card" style="--nc:var(--n5);--nc-bg:var(--n5bg);--nc-border:var(--n5border)" onclick="toggleNucleo(this)">
-      <div class="nc-header">
-        <div class="nc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-        </div>
-        <div class="nc-info">
-          <div class="nc-num">Nucleo 5</div>
-          <h2>Astronomia e spazio</h2>
-        </div>
-      </div>
-      <p class="nc-desc">Dalle fasi lunari alla missione Artemis II, dal sistema solare alla meccanica orbitale. Lo spazio a portata di click.</p>
-      <div class="nc-tags">
-        <span class="nc-tag">Artemis II</span>
-        <span class="nc-tag">Sistema solare</span>
-        <span class="nc-tag">Orbite</span>
-        <span class="nc-tag">Giorno/notte</span>
-      </div>
-      <div class="nc-badge ready">Disponibile</div>
-      <div class="nc-experiments">
-        <a href="n5-artemis.html" class="nc-exp-item">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Missione Artemis II</h5><p>Simulatore orbitale, timeline, esperimenti, foto NASA</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n5-sistema-solare.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Sistema solare navigabile</h5><p>Orbite in scala, confronto dimensioni, dati planetari</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-        <a href="n5-giorno-notte.html" class="nc-exp-item ">
-          <div class="nc-exp-dot"></div>
-          <div class="nc-exp-text"><h5>Giorno, notte e stagioni</h5><p>Rotazione, inclinazione assiale, fasi lunari</p></div>
-          <span class="nc-exp-arrow">&rsaquo;</span>
-        </a>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="footer">
-    <div class="footer-logo"><img src="logo.jpg" alt="Sacra Famiglia" style="width:60px;height:60px;border-radius:50%;opacity:.5;margin-bottom:10px"></div>
+  <footer class="site-footer">
+    <img src="logo.jpg" alt="Sacra Famiglia" class="footer-logo">
     <p><strong>Scuola Sacra Famiglia</strong> &mdash; Orzinuovi (BS)</p>
     <p>Animatore Digitale: <strong>Andrea Cerioli</strong></p>
-    <p>Percorso allineato alle Nuove Indicazioni Nazionali 2025 &mdash; Scienze, primo ciclo di istruzione</p>
-    <p style="margin-top:10px">&copy; 2025 Scuola Sacra Famiglia di Orzinuovi. Tutti i diritti riservati.</p>
-  </div>
-</div>
+    <p style="margin-top:8px">&copy; 2025 Scuola Sacra Famiglia di Orzinuovi. Tutti i diritti riservati.</p>
+  </footer>
 
-<script src="glossario.js"></script>
 <script>
-function toggleNucleo(card){
-  const wasExpanded = card.classList.contains('expanded');
-  document.querySelectorAll('.nucleo-card').forEach(c => c.classList.remove('expanded'));
-  if(!wasExpanded) card.classList.add('expanded');
+let currentLvl = 1;
+(function(){
+  const p = new URLSearchParams(window.location.search);
+  const lv = parseInt(p.get('livello'));
+  if(lv >= 1 && lv <= 3) currentLvl = lv;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.toggle('active', +b.dataset.level === currentLvl));
+})();
+
+function setLvl(lv){
+  currentLvl = lv;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.toggle('active', +b.dataset.level === lv));
+  const url = new URL(window.location);
+  url.searchParams.set('livello', lv);
+  history.replaceState(null, '', url);
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  document.querySelectorAll('.nc-exp-item').forEach(a => {
-    a.addEventListener('click', function(e){
-      e.stopPropagation();
+  document.querySelectorAll('a[href$=".html"]').forEach(a => {
+    a.addEventListener('click', function(){
       const url = new URL(this.href, window.location);
-      url.searchParams.set('livello', typeof currentLevel !== 'undefined' ? currentLevel : 1);
+      url.searchParams.set('livello', currentLvl);
       this.href = url.toString();
     });
   });
