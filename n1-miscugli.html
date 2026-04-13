@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio Miscugli — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n1); }
+.lab-area { display:grid; grid-template-columns:200px 1fr; gap:16px; margin-top:14px; }
+@media(max-width:700px){ .lab-area{grid-template-columns:1fr;} }
+.substance-shelf { display:flex; flex-direction:column; gap:8px; }
+.substance-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:var(--radius);
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06);
+  cursor:grab; transition:var(--transition); user-select:none;
+}
+.substance-item:hover { border-color:var(--n1); transform:translateX(3px); }
+.substance-item:active { cursor:grabbing; }
+.sub-dot { width:20px; height:20px; border-radius:6px; flex-shrink:0; }
+.sub-info h5 { font-size:.78rem; font-weight:600; color:var(--bianco); }
+.sub-info p { font-size:.62rem; color:rgba(255,255,255,.35); }
+.beaker-container { position:relative; background:#060a14; border-radius:var(--radius-lg); border:1px solid var(--n1border); overflow:hidden; min-height:420px; }
+#beakerCanvas { display:block; width:100%; height:100%; }
+.tool-bar { display:flex; gap:8px; padding:10px; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.04); flex-wrap:wrap; }
+.tool-btn { padding:6px 14px; border-radius:8px; border:1px solid rgba(171,71,188,.2); background:rgba(171,71,188,.07); color:var(--n1); font-family:var(--font-body); font-size:.72rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+.tool-btn:hover { background:rgba(171,71,188,.18); }
+.tool-btn.active { background:var(--n1); color:var(--space-bg); }
+.result-strip { padding:12px 16px; background:rgba(0,0,0,.25); border-top:1px solid rgba(255,255,255,.03); }
+.result-strip .tag { display:inline-block; padding:3px 10px; border-radius:12px; font-size:.65rem; font-weight:600; margin-right:6px; margin-bottom:4px; }
+.tag-omog { background:rgba(102,187,106,.15); color:#66bb6a; }
+.tag-eter { background:rgba(255,152,0,.15); color:#ffa726; }
+.tag-soluz { background:rgba(79,195,247,.15); color:#4fc3f7; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header">
+    <h1>Laboratorio Miscugli</h1>
+    <div class="subtitle">Materia e trasformazioni &middot; Nucleo 1</div>
+  </header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+
+  <div class="section-panel">
+    <h2>Miscugli e soluzioni</h2>
+    <p>Aggiungi sostanze al becher e osserva cosa succede. Alcune si sciolgono (<span class="iper" data-iper="miscugli">soluzioni</span>), altre no (<span class="iper" data-iper="miscugli">miscugli eterogenei</span>). Poi usa gli strumenti per separarle!</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Obiettivi — Indicazioni Nazionali 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Classificare oggetti e materiali in base alle loro propriet&agrave;</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Osservare le propriet&agrave; dei materiali: galleggiamento, assorbimento</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Sperimentare dissoluzione e reazioni acido-base; metodo scientifico</div>
+    </div>
+  </div>
+
+  <div class="section-panel">
+    <h2>Il tuo banco di lavoro</h2>
+    <p>Clicca una sostanza per aggiungerla al becher con l'acqua. Poi prova gli strumenti per separarle.</p>
+    <div class="lab-area">
+      <div class="substance-shelf" id="shelf"></div>
+      <div>
+        <div class="beaker-container">
+          <canvas id="beakerCanvas"></canvas>
+          <div class="result-strip" id="resultStrip">
+            <span style="font-size:.7rem;color:rgba(255,255,255,.35)">Aggiungi una sostanza per iniziare...</span>
+          </div>
+        </div>
+        <div class="tool-bar">
+          <button class="tool-btn" onclick="doAction('stir')">Mescola</button>
+          <button class="tool-btn" onclick="doAction('heat')">Riscalda</button>
+          <button class="tool-btn" onclick="doAction('filter')">Filtra</button>
+          <button class="tool-btn" onclick="doAction('evaporate')">Evapora</button>
+          <button class="tool-btn" onclick="doAction('reset')">Svuota</button>
+        </div>
+      </div>
+    </div>
+    <div class="exp-readout" id="readout" style="margin-top:14px">
+      Scegli una sostanza dalla mensola e aggiungila all'acqua nel becher.
+    </div>
+  </div>
+</div>
+
+<script src="glossario.js"></script>
+<script>
+// === SUBSTANCES ===
+const SUBSTANCES = [
+  { id:'sale', name:'Sale', desc:'NaCl cristallino', color:'#e0e0e0', dissolves:true, density:2.16, type:'soluzione', resultColor:'rgba(200,220,255,.15)' },
+  { id:'sabbia', name:'Sabbia', desc:'Granelli di quarzo', color:'#d4a056', dissolves:false, density:2.65, type:'eterogeneo', sinks:true },
+  { id:'olio', name:'Olio', desc:'Olio vegetale', color:'#c8b422', dissolves:false, density:0.92, type:'eterogeneo', sinks:false },
+  { id:'zucchero', name:'Zucchero', desc:'Saccarosio C₁₂H₂₂O₁₁', color:'#fff8e1', dissolves:true, density:1.55, type:'soluzione', resultColor:'rgba(255,248,225,.12)' },
+  { id:'bicarbonato', name:'Bicarbonato', desc:'NaHCO₃', color:'#f5f5f5', dissolves:true, density:2.2, type:'soluzione', resultColor:'rgba(245,245,245,.08)', reacts:true },
+  { id:'limatura', name:'Limatura di ferro', desc:'Polvere metallica', color:'#78909c', dissolves:false, density:7.87, type:'eterogeneo', sinks:true, magnetic:true },
+];
+
+// State
+let beakerContents = []; // substances added
+let waterColor = 'rgba(79,195,247,.2)';
+let stirring = false;
+let heating = false;
+let filtered = false;
+let evaporated = false;
+let particles = []; // visual particles in beaker
+
+// Build shelf
+const shelf = document.getElementById('shelf');
+SUBSTANCES.forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'substance-item';
+  el.innerHTML = `<div class="sub-dot" style="background:${s.color}"></div><div class="sub-info"><h5>${s.name}</h5><p>${s.desc}</p></div>`;
+  el.onclick = () => addSubstance(s);
+  shelf.appendChild(el);
+});
+
+function addSubstance(s){
+  if(beakerContents.find(c => c.id === s.id)) return;
+  beakerContents.push(s);
+  // Add visual particles
+  for(let i = 0; i < 25; i++){
+    particles.push({
+      x: 200 + Math.random() * 200,
+      y: s.sinks === false ? 100 + Math.random() * 40 : 250 + Math.random() * 100,
+      vx: (Math.random()-.5) * .5,
+      vy: (Math.random()-.5) * .5,
+      r: s.dissolves ? 2 + Math.random()*2 : 3 + Math.random()*3,
+      color: s.color,
+      substance: s,
+      dissolved: false,
+      opacity: 1,
+      removed: false
+    });
+  }
+  if(s.dissolves) waterColor = s.resultColor || waterColor;
+  updateReadout();
+  updateResult();
+}
+
+function doAction(action){
+  if(action === 'reset'){
+    beakerContents = []; particles = []; filtered = false; evaporated = false;
+    waterColor = 'rgba(79,195,247,.2)';
+    updateReadout(); updateResult(); return;
+  }
+  if(action === 'stir'){
+    stirring = true;
+    setTimeout(() => stirring = false, 2000);
+    particles.forEach(p => {
+      if(p.substance.dissolves && !p.removed){
+        p.dissolved = true;
+        p.r = Math.max(1, p.r * 0.5);
+      }
+      p.vx += (Math.random()-.5) * 4;
+      p.vy += (Math.random()-.5) * 4;
+    });
+    updateReadout('stir');
+  }
+  if(action === 'heat'){
+    heating = true;
+    setTimeout(() => heating = false, 3000);
+    particles.forEach(p => {
+      if(p.substance.dissolves){
+        p.dissolved = true;
+        p.r = Math.max(0.5, p.r * 0.3);
+        p.opacity = 0.3;
+      }
+      p.vy -= 2;
+    });
+    updateReadout('heat');
+  }
+  if(action === 'filter'){
+    filtered = true;
+    particles.forEach(p => {
+      if(!p.substance.dissolves && p.substance.sinks){
+        p.removed = true;
+      }
+    });
+    particles = particles.filter(p => !p.removed);
+    updateReadout('filter');
+    updateResult();
+  }
+  if(action === 'evaporate'){
+    evaporated = true;
+    // Remove water, leave solids
+    particles.forEach(p => {
+      if(p.substance.dissolves){
+        p.dissolved = false;
+        p.r = 3;
+        p.opacity = 1;
+        p.y = 300 + Math.random() * 40;
+      }
+    });
+    waterColor = 'rgba(79,195,247,.03)';
+    updateReadout('evaporate');
+    updateResult();
+  }
+}
+
+function updateResult(){
+  const strip = document.getElementById('resultStrip');
+  if(beakerContents.length === 0){
+    strip.innerHTML = '<span style="font-size:.7rem;color:rgba(255,255,255,.35)">Aggiungi una sostanza per iniziare...</span>';
+    return;
+  }
+  let html = '';
+  beakerContents.forEach(s => {
+    const tagClass = s.type === 'soluzione' ? 'tag-soluz' : 'tag-eter';
+    const label = s.dissolves ? (filtered || evaporated ? 'separato' : 'disciolto') : (filtered ? 'filtrato' : 'non disciolto');
+    html += `<span class="tag ${tagClass}">${s.name}: ${label}</span>`;
+  });
+  const hasSoluble = beakerContents.some(s => s.dissolves);
+  const hasInsoluble = beakerContents.some(s => !s.dissolves);
+  if(hasSoluble && hasInsoluble) html += '<span class="tag tag-eter">Miscuglio eterogeneo</span>';
+  else if(hasSoluble) html += '<span class="tag tag-soluz">Soluzione omogenea</span>';
+  else html += '<span class="tag tag-eter">Miscuglio eterogeneo</span>';
+  strip.innerHTML = html;
+}
+
+function updateReadout(action){
+  let text = '';
+  if(!action && beakerContents.length === 0){
+    text = 'Scegli una sostanza dalla mensola e aggiungila all\'acqua nel becher.'; 
+  } else if(!action){
+    const last = beakerContents[beakerContents.length-1];
+    if(last.dissolves) text = `<strong>${last.name}</strong> si sta sciogliendo nell'acqua! Le sue particelle si separano e si distribuiscono tra le molecole d'acqua. Prova a mescolare per velocizzare.`;
+    else if(last.sinks === false) text = `<strong>${last.name}</strong> galleggia! La sua densit\u00e0 (${last.density} g/cm\u00b3) \u00e8 minore di quella dell'acqua (1 g/cm\u00b3).`;
+    else text = `<strong>${last.name}</strong> non si scioglie e cade sul fondo. \u00c8 un miscuglio eterogeneo: le due sostanze restano separate.`;
+  } else if(action === 'stir'){
+    text = '<strong>Mescolare</strong> accelera la dissoluzione: le particelle di soluto incontrano pi\u00f9 molecole di solvente. Le sostanze insolubili si ridistribuiscono ma non si sciolgono.';
+  } else if(action === 'heat'){
+    text = '<strong>Riscaldare</strong> aumenta l\'energia cinetica delle particelle. La solubilit\u00e0 dei solidi generalmente aumenta con la temperatura. Le sostanze disciolte diventano sempre pi\u00f9 "invisibili".';
+  } else if(action === 'filter'){
+    text = '<strong>Filtrazione:</strong> il filtro trattiene le particelle solide non disciolte (sabbia, limatura) ma lascia passare le soluzioni. \u00c8 il metodo per separare miscugli eterogenei solido-liquido.';
+  } else if(action === 'evaporate'){
+    text = '<strong>Evaporazione:</strong> l\'acqua evapora e le sostanze disciolte ricompaiono come cristalli sul fondo! \u00c8 cos\u00ec che si ottiene il sale dalle saline.';
+  }
+
+  if(currentLevel >= 2 && beakerContents.length > 0){
+    text += '<br><br><strong>Indaga:</strong> Una soluzione \u00e8 un miscuglio omogeneo: il soluto si distribuisce uniformemente nel solvente a livello molecolare. La solubilit\u00e0 del sale in acqua \u00e8 ~360 g/L a 20\u00b0C.';
+  }
+  if(currentLevel >= 3 && beakerContents.length > 0){
+    text += '<br><br><strong>Approfondisci:</strong> La dissoluzione \u00e8 governata dalla variazione di energia libera di Gibbs: \u0394G = \u0394H - T\u0394S. Il processo \u00e8 spontaneo quando \u0394G < 0. Per i sali ionici, l\'energia di idratazione degli ioni deve superare l\'energia reticolare.';
+  }
+  document.getElementById('readout').innerHTML = text;
+}
+
+// === CANVAS RENDERING ===
+const cv = document.getElementById('beakerCanvas');
+const cx = cv.getContext('2d');
+
+function drawBeaker(){
+  const rect = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = rect.width * dpr;
+  cv.height = 380 * dpr;
+  cx.scale(dpr, dpr);
+  const w = rect.width, h = 380;
+
+  cx.fillStyle = '#050810';
+  cx.fillRect(0, 0, w, h);
+
+  // Beaker outline
+  const bx = w * 0.25, by = 40, bw = w * 0.5, bh = 300;
+  
+  // Water
+  const waterH = evaporated ? bh * 0.05 : bh * 0.75;
+  const waterY = by + bh - waterH;
+  const wGrd = cx.createLinearGradient(0, waterY, 0, by + bh);
+  wGrd.addColorStop(0, waterColor);
+  wGrd.addColorStop(1, 'rgba(79,195,247,.08)');
+  cx.fillStyle = wGrd;
+  cx.fillRect(bx + 3, waterY, bw - 6, waterH);
+
+  // Oil layer if present
+  if(beakerContents.find(s => s.id === 'olio') && !filtered){
+    const oilH = 35;
+    cx.fillStyle = 'rgba(200,180,34,.2)';
+    cx.fillRect(bx + 3, waterY - oilH, bw - 6, oilH);
+    cx.fillStyle = 'rgba(200,180,34,.08)';
+    cx.fillRect(bx + 3, waterY - oilH - 1, bw - 6, 2);
+  }
+
+  // Particles
+  particles.forEach(p => {
+    if(p.removed) return;
+    // Physics
+    if(stirring){
+      p.vx += (Math.random()-.5) * .8;
+      p.vy += (Math.random()-.5) * .8;
+    }
+    if(!p.dissolved && p.substance.sinks !== false) p.vy += 0.03; // gravity
+    if(!p.dissolved && p.substance.sinks === false) p.vy -= 0.02; // float
+
+    p.vx *= 0.97; p.vy *= 0.97;
+    p.x += p.vx; p.y += p.vy;
+
+    // Bounds (relative to beaker)
+    const minX = bx + 10, maxX = bx + bw - 10;
+    const minY = by + (evaporated ? bh - 30 : bh * 0.2);
+    const maxY = by + bh - 10;
+    if(p.x < minX){ p.x = minX; p.vx *= -0.5; }
+    if(p.x > maxX){ p.x = maxX; p.vx *= -0.5; }
+    if(p.y < minY){ p.y = minY; p.vy *= -0.5; }
+    if(p.y > maxY){ p.y = maxY; p.vy *= -0.5; }
+
+    cx.globalAlpha = p.opacity;
+    cx.beginPath();
+    cx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    cx.fillStyle = p.color;
+    cx.fill();
+    cx.globalAlpha = 1;
+  });
+
+  // Beaker glass
+  cx.strokeStyle = 'rgba(255,255,255,.15)';
+  cx.lineWidth = 2;
+  cx.beginPath();
+  cx.moveTo(bx, by);
+  cx.lineTo(bx, by + bh);
+  cx.lineTo(bx + bw, by + bh);
+  cx.lineTo(bx + bw, by);
+  cx.stroke();
+
+  // Beaker marks
+  cx.fillStyle = 'rgba(255,255,255,.12)';
+  cx.font = '9px DM Sans';
+  cx.textAlign = 'right';
+  for(let i = 1; i <= 4; i++){
+    const my = by + bh - (bh * i / 5);
+    cx.fillRect(bx + 1, my, 12, 1);
+    cx.fillText((i * 100) + ' ml', bx - 4, my + 3);
+  }
+
+  // Heating animation
+  if(heating){
+    for(let i = 0; i < 5; i++){
+      const fx = bx + bw * 0.2 + Math.random() * bw * 0.6;
+      const fy = by + bh + 5 + Math.random() * 15;
+      cx.fillStyle = `rgba(239,83,80,${0.3 + Math.random()*0.4})`;
+      cx.beginPath();
+      cx.arc(fx, fy, 3 + Math.random()*4, 0, Math.PI*2);
+      cx.fill();
+    }
+    // Bubbles
+    for(let i = 0; i < 3; i++){
+      const bpx = bx + bw*0.3 + Math.random() * bw*0.4;
+      const bpy = waterY + Math.random() * waterH;
+      cx.strokeStyle = 'rgba(255,255,255,.1)';
+      cx.lineWidth = 1;
+      cx.beginPath();
+      cx.arc(bpx, bpy, 2+Math.random()*3, 0, Math.PI*2);
+      cx.stroke();
+    }
+  }
+
+  // Label
+  cx.fillStyle = 'rgba(255,255,255,.2)';
+  cx.font = '10px DM Sans';
+  cx.textAlign = 'center';
+  cx.fillText('Becher 500 ml', bx + bw/2, by + bh + 25);
+
+  requestAnimationFrame(drawBeaker);
+}
+
+setTimeout(drawBeaker, 150);
+</script>
+</body>
+</html>

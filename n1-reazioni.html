@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilanciamento Reazioni — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n1); }
+.reaction-card {
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius-lg); padding:24px; margin-bottom:14px;
+  transition:var(--transition);
+}
+.reaction-card.solved { border-color:rgba(102,187,106,.4); background:rgba(102,187,106,.04); }
+.reaction-card.current { border-color:var(--n1border); }
+.r-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.r-header h3 { font-size:1rem; font-weight:600; color:var(--bianco); margin:0; }
+.r-badge { padding:3px 10px; border-radius:12px; font-size:.6rem; font-weight:600; text-transform:uppercase; }
+.r-badge.todo { background:rgba(255,255,255,.06); color:rgba(255,255,255,.35); }
+.r-badge.done { background:rgba(102,187,106,.15); color:#66bb6a; }
+.equation-row {
+  display:flex; align-items:center; justify-content:center;
+  gap:8px; flex-wrap:wrap; padding:20px 0;
+  font-size:1.1rem; font-weight:500;
+}
+.coeff-btn {
+  width:36px; height:36px; border-radius:8px;
+  border:1.5px solid var(--n1border);
+  background:rgba(171,71,188,.08);
+  color:var(--n1); font-family:var(--font-body);
+  font-size:1.1rem; font-weight:700;
+  cursor:pointer; transition:var(--transition);
+  display:flex; align-items:center; justify-content:center;
+}
+.coeff-btn:hover { background:rgba(171,71,188,.2); transform:scale(1.1); }
+.formula { font-family:var(--font-body); font-weight:500; color:rgba(255,255,255,.8); font-size:1rem; }
+.formula sub { font-size:.7em; }
+.plus { color:rgba(255,255,255,.3); margin:0 4px; }
+.arrow { color:var(--corona); margin:0 10px; font-size:1.2rem; }
+.atom-viz {
+  display:flex; justify-content:center; gap:40px;
+  padding:16px 0; flex-wrap:wrap;
+}
+.atom-side { text-align:center; }
+.atom-side .side-label { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.3); margin-bottom:8px; }
+.atom-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-bottom:4px; }
+.atom-ball { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.55rem; font-weight:700; color:#fff; }
+.atom-count { font-size:.7rem; margin-top:4px; }
+.atom-match { color:#66bb6a; }
+.atom-mismatch { color:#ef5350; }
+.score-bar { display:flex; align-items:center; justify-content:center; gap:16px; padding:14px 0; }
+.score-item { text-align:center; }
+.score-item .s-num { font-size:1.4rem; font-weight:700; color:var(--n1); }
+.score-item .s-lbl { font-size:.6rem; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:1px; }
+.nav-btns { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+</style>
+</head>
+<body>
+<div class="stars-container" id="starsContainer"></div>
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+  <header class="page-header">
+    <h1>Bilanciamento Reazioni</h1>
+    <div class="subtitle">Materia e trasformazioni &middot; Nucleo 1</div>
+  </header>
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1);loadReaction()">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2);loadReaction()">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3);loadReaction()">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+
+  <div class="section-panel">
+    <h2>La legge della conservazione della massa</h2>
+    <p>In una <span class="iper" data-iper="reazione-chimica">reazione chimica</span> nessun <span class="iper" data-iper="atomo">atomo</span> si crea o si distrugge: i reagenti diventano prodotti con gli stessi atomi, solo riorganizzati. Il tuo compito: trova i coefficienti giusti per bilanciare ogni equazione.</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Obiettivi — Indicazioni Nazionali 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Interpretare le trasformazioni chimiche attraverso reazioni</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Applicare il metodo scientifico formulando ipotesi e verificandole</div>
+    </div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item"><div class="s-num" id="scoreNum">0</div><div class="s-lbl">Bilanciate</div></div>
+    <div class="score-item"><div class="s-num" id="totalNum">0</div><div class="s-lbl">Totali</div></div>
+  </div>
+
+  <div id="reactionContainer"></div>
+
+  <div class="nav-btns">
+    <button class="sim-btn" onclick="prevReaction()">&#8592; Precedente</button>
+    <button class="sim-btn" onclick="nextReaction()">Successiva &#8594;</button>
+  </div>
+
+  <div class="exp-readout" id="readout" style="margin-top:14px"></div>
+</div>
+
+<script src="glossario.js"></script>
+<script>
+// Atom colors
+const ATOM_COLORS = {
+  H:'#e0e0e0', O:'#ef5350', C:'#424242', N:'#42a5f5',
+  Fe:'#8d6e63', S:'#fdd835', Na:'#ab47bc', Cl:'#66bb6a',
+  Ca:'#ff7043', Mg:'#26a69a', Al:'#78909c', P:'#ff8a65',
+  K:'#7e57c2', Zn:'#90a4ae', Cu:'#f06292', Ag:'#b0bec5'
+};
+
+// Reactions database by level
+const REACTIONS = {
+  1: [ // 3-4 Primaria: simple, visual
+    { name:'L\'acqua', reagents:[{f:'H₂',atoms:{H:2}},{f:'O₂',atoms:{O:2}}], products:[{f:'H₂O',atoms:{H:2,O:1}}], solution:[2,1,2], hint:'L\'idrogeno brucia nell\'aria e forma acqua!' },
+    { name:'La ruggine', reagents:[{f:'Fe',atoms:{Fe:1}},{f:'O₂',atoms:{O:2}}], products:[{f:'Fe₂O₃',atoms:{Fe:2,O:3}}], solution:[4,3,2], hint:'Il ferro si combina con l\'ossigeno dell\'aria.' },
+    { name:'Il fuoco', reagents:[{f:'C',atoms:{C:1}},{f:'O₂',atoms:{O:2}}], products:[{f:'CO₂',atoms:{C:1,O:2}}], solution:[1,1,1], hint:'Il carbone brucia e produce anidride carbonica.' },
+  ],
+  2: [ // 5P-1S
+    { name:'Fotosintesi', reagents:[{f:'CO₂',atoms:{C:1,O:2}},{f:'H₂O',atoms:{H:2,O:1}}], products:[{f:'C₆H₁₂O₆',atoms:{C:6,H:12,O:6}},{f:'O₂',atoms:{O:2}}], solution:[6,6,1,6], hint:'Le piante trasformano CO₂ e acqua in glucosio e ossigeno.' },
+    { name:'Aceto e bicarbonato', reagents:[{f:'NaHCO₃',atoms:{Na:1,H:1,C:1,O:3}},{f:'CH₃COOH',atoms:{C:2,H:4,O:2}}], products:[{f:'NaCH₃COO',atoms:{Na:1,C:2,H:3,O:2}},{f:'H₂O',atoms:{H:2,O:1}},{f:'CO₂',atoms:{C:1,O:2}}], solution:[1,1,1,1,1], hint:'La reazione che fa le bolle!' },
+    { name:'Combustione metano', reagents:[{f:'CH₄',atoms:{C:1,H:4}},{f:'O₂',atoms:{O:2}}], products:[{f:'CO₂',atoms:{C:1,O:2}},{f:'H₂O',atoms:{H:2,O:1}}], solution:[1,2,1,2], hint:'Il gas che brucia nella cucina.' },
+  ],
+  3: [ // 2-3 Secondaria
+    { name:'Termite', reagents:[{f:'Fe₂O₃',atoms:{Fe:2,O:3}},{f:'Al',atoms:{Al:1}}], products:[{f:'Al₂O₃',atoms:{Al:2,O:3}},{f:'Fe',atoms:{Fe:1}}], solution:[1,2,1,2], hint:'Reazione esotermica violenta.' },
+    { name:'Ammoniaca', reagents:[{f:'N₂',atoms:{N:2}},{f:'H₂',atoms:{H:2}}], products:[{f:'NH₃',atoms:{N:1,H:3}}], solution:[1,3,2], hint:'Processo Haber-Bosch per i fertilizzanti.' },
+    { name:'Respirazione cellulare', reagents:[{f:'C₆H₁₂O₆',atoms:{C:6,H:12,O:6}},{f:'O₂',atoms:{O:2}}], products:[{f:'CO₂',atoms:{C:1,O:2}},{f:'H₂O',atoms:{H:2,O:1}}], solution:[1,6,6,6], hint:'L\'inverso della fotosintesi: le cellule bruciano glucosio.' },
+    { name:'Neutralizzazione', reagents:[{f:'HCl',atoms:{H:1,Cl:1}},{f:'NaOH',atoms:{Na:1,O:1,H:1}}], products:[{f:'NaCl',atoms:{Na:1,Cl:1}},{f:'H₂O',atoms:{H:2,O:1}}], solution:[1,1,1,1], hint:'Acido + base = sale + acqua.' },
+  ]
+};
+
+let currentIdx = 0;
+let reactions = REACTIONS[1];
+let coefficients = [];
+let solvedSet = new Set();
+
+function loadReaction(){
+  reactions = REACTIONS[currentLevel] || REACTIONS[1];
+  if(currentIdx >= reactions.length) currentIdx = 0;
+  solvedSet = new Set();
+  renderAll();
+}
+
+function renderAll(){
+  const r = reactions[currentIdx];
+  const totalCompounds = r.reagents.length + r.products.length;
+  if(!coefficients.length || coefficients.length !== totalCompounds){
+    coefficients = new Array(totalCompounds).fill(1);
+  }
+
+  const container = document.getElementById('reactionContainer');
+  const isSolved = checkBalance(r);
+  if(isSolved) solvedSet.add(currentIdx);
+
+  let html = `<div class="reaction-card ${isSolved ? 'solved' : 'current'}">`;
+  html += `<div class="r-header"><h3>${r.name}</h3><span class="r-badge ${isSolved ? 'done' : 'todo'}">${isSolved ? 'Bilanciata!' : 'Da bilanciare'}</span></div>`;
+
+  // Equation row
+  html += '<div class="equation-row">';
+  let ci = 0;
+  r.reagents.forEach((rg, i) => {
+    if(i > 0) html += '<span class="plus">+</span>';
+    html += `<button class="coeff-btn" onclick="cycleCoeff(${ci})">${coefficients[ci]}</button>`;
+    html += `<span class="formula">${rg.f}</span>`;
+    ci++;
+  });
+  html += '<span class="arrow">&#10230;</span>';
+  r.products.forEach((pr, i) => {
+    if(i > 0) html += '<span class="plus">+</span>';
+    html += `<button class="coeff-btn" onclick="cycleCoeff(${ci})">${coefficients[ci]}</button>`;
+    html += `<span class="formula">${pr.f}</span>`;
+    ci++;
+  });
+  html += '</div>';
+
+  // Atom visualization
+  const leftAtoms = countAtoms(r.reagents, coefficients.slice(0, r.reagents.length));
+  const rightAtoms = countAtoms(r.products, coefficients.slice(r.reagents.length));
+  const allElements = [...new Set([...Object.keys(leftAtoms), ...Object.keys(rightAtoms)])];
+
+  html += '<div class="atom-viz"><div class="atom-side"><div class="side-label">Reagenti</div>';
+  allElements.forEach(el => {
+    const n = leftAtoms[el] || 0;
+    html += '<div class="atom-row">';
+    for(let i = 0; i < Math.min(n, 12); i++) html += `<div class="atom-ball" style="background:${ATOM_COLORS[el]||'#999'}">${el}</div>`;
+    if(n > 12) html += `<span style="color:rgba(255,255,255,.4);font-size:.7rem">+${n-12}</span>`;
+    html += '</div>';
+    const match = n === (rightAtoms[el]||0);
+    html += `<div class="atom-count ${match?'atom-match':'atom-mismatch'}">${el}: ${n}</div>`;
+  });
+  html += '</div><div class="atom-side"><div class="side-label">Prodotti</div>';
+  allElements.forEach(el => {
+    const n = rightAtoms[el] || 0;
+    html += '<div class="atom-row">';
+    for(let i = 0; i < Math.min(n, 12); i++) html += `<div class="atom-ball" style="background:${ATOM_COLORS[el]||'#999'}">${el}</div>`;
+    if(n > 12) html += `<span style="color:rgba(255,255,255,.4);font-size:.7rem">+${n-12}</span>`;
+    html += '</div>';
+    const match = n === (leftAtoms[el]||0);
+    html += `<div class="atom-count ${match?'atom-match':'atom-mismatch'}">${el}: ${n}</div>`;
+  });
+  html += '</div></div>';
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Score
+  document.getElementById('scoreNum').textContent = solvedSet.size;
+  document.getElementById('totalNum').textContent = reactions.length;
+
+  // Readout
+  let readout = '';
+  if(isSolved){
+    readout = `<strong>Perfetto!</strong> La reazione \u00e8 bilanciata: lo stesso numero di ogni tipo di atomo a sinistra e a destra. ${r.hint}`;
+  } else {
+    readout = `<strong>Suggerimento:</strong> ${r.hint} Clicca sui numeri per cambiare i coefficienti. Ogni tipo di atomo deve avere lo stesso conteggio a sinistra (reagenti) e a destra (prodotti).`;
+  }
+  if(currentLevel >= 2) readout += '<br><br><strong>Indaga:</strong> La legge di Lavoisier (conservazione della massa, 1789) dice che in una reazione chimica la massa totale dei reagenti \u00e8 uguale a quella dei prodotti. Nessun atomo si crea o si distrugge.';
+  if(currentLevel >= 3) readout += '<br><br><strong>Approfondisci:</strong> Il bilanciamento stechiometrico garantisce la conservazione della massa e della carica. I coefficienti stechiometrici indicano i rapporti molari tra le specie chimiche. Per reazioni redox complesse si usa il metodo delle semireazioni (ossidazione + riduzione).';
+  document.getElementById('readout').innerHTML = readout;
+}
+
+function cycleCoeff(idx){
+  coefficients[idx] = coefficients[idx] >= 8 ? 1 : coefficients[idx] + 1;
+  renderAll();
+}
+
+function countAtoms(compounds, coeffs){
+  const result = {};
+  compounds.forEach((c, i) => {
+    const coeff = coeffs[i] || 1;
+    Object.entries(c.atoms).forEach(([el, n]) => {
+      result[el] = (result[el] || 0) + n * coeff;
+    });
+  });
+  return result;
+}
+
+function checkBalance(r){
+  const left = countAtoms(r.reagents, coefficients.slice(0, r.reagents.length));
+  const right = countAtoms(r.products, coefficients.slice(r.reagents.length));
+  const allEl = new Set([...Object.keys(left), ...Object.keys(right)]);
+  for(const el of allEl){
+    if((left[el]||0) !== (right[el]||0)) return false;
+  }
+  // Check not all 1s if solution isn't all 1s
+  return true;
+}
+
+function nextReaction(){
+  currentIdx = (currentIdx + 1) % reactions.length;
+  coefficients = [];
+  renderAll();
+}
+function prevReaction(){
+  currentIdx = (currentIdx - 1 + reactions.length) % reactions.length;
+  coefficients = [];
+  renderAll();
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  loadReaction();
+});
+</script>
+</body>
+</html>
