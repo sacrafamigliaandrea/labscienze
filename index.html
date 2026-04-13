@@ -5,625 +5,342 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laboratorio Scientifico — SacraFamiglia education</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-:root {
-  --verde: #1B6D3F;
-  --verde-light: #e8f5ee;
-  --ambra: #E8A317;
-  --ambra-light: #fef3d6;
-  --blu: #2563EB;
-  --rosso: #DC2626;
-  --grigio-3: #6c757d;
-  --bianco: #ffffff;
-  --nero: #1a1a1a;
-  --space-bg: #0a0e1a;
-  --space-accent: #4fc3f7;
-  --space-glow: rgba(79,195,247,0.3);
-  --corona: #ffcc02;
-  --font-body: 'DM Sans', sans-serif;
-  --font-display: 'Playfair Display', serif;
-  --radius: 12px;
-  --radius-lg: 20px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.08);
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Nucleo colors */
-  --n1: #ab47bc; --n1bg: rgba(171,71,188,0.12);
-  --n2: #ef5350; --n2bg: rgba(239,83,80,0.12);
-  --n3: #66bb6a; --n3bg: rgba(102,187,106,0.12);
-  --n4: #8d6e63; --n4bg: rgba(141,110,99,0.12);
-  --n5: #4fc3f7; --n5bg: rgba(79,195,247,0.12);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: var(--font-body); background: var(--space-bg); color: var(--bianco); overflow-x: hidden; min-height: 100vh; }
-
-/* STARS */
-.stars-container { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle var(--dur) ease-in-out infinite alternate; }
-@keyframes twinkle { 0%{opacity:.2} 100%{opacity:1} }
-
-.app-container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
-
-/* HEADER */
-.app-header { text-align: center; padding: 40px 20px 20px; }
-.app-header h1 {
-  font-family: var(--font-display); font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800;
-  background: linear-gradient(135deg, var(--space-accent), var(--corona), var(--space-accent));
+/* === INDEX-SPECIFIC === */
+.hero { text-align: center; padding: 50px 20px 30px; }
+.hero h1 {
+  font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
+  background: linear-gradient(135deg, var(--space-accent) 0%, var(--corona) 50%, var(--space-accent) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer 6s linear infinite;
 }
-.app-header .subtitle { font-size: .9rem; color: rgba(255,255,255,.55); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-.brand-tag { display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 20px; font-size: .65rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; background: rgba(27,109,63,.25); color: #6dcf97; border: 1px solid rgba(27,109,63,.35); }
-.curricolo-ref { text-align: center; margin: 10px 0 20px; font-size: .72rem; color: rgba(255,255,255,.35); font-style: italic; }
+@keyframes shimmer { to { background-position: 200% center; } }
+.hero .subtitle { font-size: 1rem; color: rgba(255,255,255,.45); font-weight: 300; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
+.hero .brand-tag { margin-top: 14px; }
+.hero-desc { max-width: 680px; margin: 18px auto 0; font-size: .88rem; color: rgba(255,255,255,.5); line-height: 1.7; }
 
-/* COMPLEXITY */
-.complexity-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 0 16px; }
-.complexity-label { font-size: .75rem; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: 1px; }
-.complexity-btn { display: flex; align-items: center; gap: 5px; padding: 7px 16px; border-radius: 30px; border: 1.5px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: rgba(255,255,255,.6); font-family: var(--font-body); font-size: .75rem; font-weight: 500; cursor: pointer; transition: var(--transition); }
-.complexity-btn:hover { border-color: var(--space-accent); color: var(--space-accent); }
-.complexity-btn.active { background: rgba(79,195,247,.12); border-color: var(--space-accent); color: var(--space-accent); }
-.complexity-btn svg { width: 16px; height: 16px; }
-
-/* NUCLEI NAV */
-.nuclei-nav { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
-.nucleo-tab { padding: 9px 16px; border-radius: 30px; border: 1.5px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); color: rgba(255,255,255,.45); font-family: var(--font-body); font-size: .72rem; font-weight: 500; cursor: pointer; transition: var(--transition); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-.nucleo-tab:hover:not(.coming-soon) { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.8); }
-.nucleo-tab.active { border-color: var(--tab-color, var(--space-accent)); color: var(--bianco); background: var(--tab-bg, rgba(79,195,247,.15)); }
-.nucleo-tab.coming-soon { opacity: .35; cursor: default; }
-.nucleo-tab .tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tab-color, var(--space-accent)); }
-
-/* PANELS */
-.section-panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-.section-panel h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--space-accent); margin-bottom: 6px; }
-.section-panel h3 { font-size: 1.05rem; font-weight: 600; color: var(--corona); margin: 18px 0 8px; }
-.section-panel p { font-size: .88rem; line-height: 1.7; color: rgba(255,255,255,.75); margin-bottom: 10px; }
-
-/* CURRICULUM OBJECTIVES */
-.curricolo-box { background: rgba(79,195,247,.06); border: 1px solid rgba(79,195,247,.15); border-radius: var(--radius); padding: 16px 18px; margin: 14px 0; }
-.curricolo-box .curricolo-title { font-size: .7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--space-accent); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.curricolo-box .curricolo-title svg { width: 14px; height: 14px; }
-.curricolo-obj { font-size: .8rem; color: rgba(255,255,255,.6); line-height: 1.6; margin-bottom: 6px; padding-left: 14px; position: relative; }
-.curricolo-obj::before { content: ''; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--space-accent); opacity: .5; }
-.curricolo-obj .classe-tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: .6rem; font-weight: 600; margin-right: 4px; }
-.tag-3p { background: rgba(102,187,106,.2); color: #81c784; }
-.tag-5p { background: rgba(255,193,7,.2); color: #ffd54f; }
-.tag-sec { background: rgba(79,195,247,.2); color: #4fc3f7; }
-
-/* HYPERTEXT */
-.iper { color: var(--space-accent); border-bottom: 1px dashed rgba(79,195,247,.35); cursor: pointer; transition: var(--transition); }
-.iper:hover { color: var(--corona); border-color: var(--corona); }
-.iper-panel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: min(520px,92vw); max-height: 80vh; overflow-y: auto; background: #141a2e; border: 1px solid rgba(79,195,247,.25); border-radius: var(--radius-lg); padding: 26px; z-index: 1000; box-shadow: 0 20px 60px rgba(0,0,0,.6); animation: panelIn .25s ease-out; }
-@keyframes panelIn { from{opacity:0;transform:translate(-50%,-48%) scale(.96)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
-.iper-panel.visible { display: block; }
-.iper-panel h4 { font-family: var(--font-display); font-size: 1.15rem; color: var(--space-accent); margin-bottom: 12px; }
-.iper-panel p { font-size: .85rem; line-height: 1.7; color: rgba(255,255,255,.75); margin-bottom: 8px; }
-.level-tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-.level-tag.l1 { background: rgba(76,175,80,.2); color: #81c784; }
-.level-tag.l2 { background: rgba(255,193,7,.2); color: #ffd54f; }
-.level-tag.l3 { background: rgba(244,67,54,.2); color: #ef9a9a; }
-.iper-close { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-.iper-close:hover { background: rgba(255,255,255,.15); color: #fff; }
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 999; }
-.overlay.visible { display: block; }
-
-/* SIMULATOR */
-.sim-container { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: #060a14; border: 1px solid rgba(79,195,247,.12); }
-#orbitCanvas { display: block; width: 100%; }
-.sim-controls { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 18px; background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.05); align-items: center; }
-.sim-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid rgba(79,195,247,.25); background: rgba(79,195,247,.08); color: var(--space-accent); font-family: var(--font-body); font-size: .75rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
-.sim-btn:hover { background: rgba(79,195,247,.2); }
-.sim-btn.active { background: var(--space-accent); color: var(--space-bg); }
-.sim-slider-group { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 180px; }
-.sim-slider-group label { font-size: .7rem; color: rgba(255,255,255,.45); white-space: nowrap; }
-.sim-slider-group input[type="range"] { flex: 1; accent-color: var(--space-accent); height: 4px; }
-.sim-info-strip { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 18px; background: rgba(0,0,0,.25); border-top: 1px solid rgba(255,255,255,.03); }
-.sim-info-item { display: flex; flex-direction: column; gap: 1px; }
-.sim-info-item .label { font-size: .55rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.35); }
-.sim-info-item .value { font-size: .9rem; font-weight: 600; color: var(--space-accent); font-variant-numeric: tabular-nums; }
-
-/* EXPERIMENT CARDS */
-.exp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
-.exp-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; }
-.exp-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--space-accent), var(--corona)); transform: scaleX(0); transform-origin: left; transition: var(--transition); }
-.exp-card:hover { border-color: rgba(79,195,247,.25); transform: translateY(-2px); }
-.exp-card:hover::before { transform: scaleX(1); }
-.exp-card h4 { font-size: .9rem; font-weight: 600; color: var(--bianco); margin-bottom: 5px; }
-.exp-card p { font-size: .78rem; color: rgba(255,255,255,.45); line-height: 1.5; }
-.exp-card .complexity-dots { display: flex; gap: 4px; margin-top: 8px; }
-.exp-card .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.12); }
-.exp-card .dot.filled { background: var(--space-accent); }
-.exp-card .obj-tag { margin-top: 8px; font-size: .62rem; color: rgba(79,195,247,.6); font-style: italic; }
-
-/* EXPERIMENT AREA */
-.experiment-area { display: none; background: rgba(0,0,0,.3); border: 1px solid rgba(79,195,247,.12); border-radius: var(--radius-lg); padding: 22px; margin-top: 14px; animation: panelIn .3s ease-out; }
-.experiment-area.visible { display: block; }
-.experiment-area h3 { color: var(--space-accent); margin-bottom: 14px; font-size: 1.05rem; }
-.experiment-area canvas { display: block; width: 100%; border-radius: var(--radius); background: #050810; margin-bottom: 10px; }
-.exp-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
-.exp-controls label { font-size: .75rem; color: rgba(255,255,255,.55); }
-.exp-controls input[type="range"] { width: 110px; accent-color: var(--space-accent); }
-.exp-readout { font-size: .8rem; color: rgba(255,255,255,.65); line-height: 1.7; padding: 12px 14px; background: rgba(255,255,255,.03); border-radius: var(--radius); border-left: 3px solid var(--space-accent); }
-
-/* TIMELINE */
-.timeline { position: relative; padding: 16px 0; }
-.timeline::before { content: ''; position: absolute; left: 22px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--space-accent), var(--corona), var(--space-accent), transparent); }
-.timeline-item { position: relative; padding-left: 56px; margin-bottom: 24px; cursor: pointer; transition: var(--transition); }
-.timeline-item:hover { transform: translateX(3px); }
-.timeline-dot { position: absolute; left: 14px; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--space-bg); border: 2.5px solid var(--space-accent); z-index: 1; transition: var(--transition); }
-.timeline-item:hover .timeline-dot { background: var(--space-accent); box-shadow: 0 0 10px var(--space-glow); }
-.timeline-item.highlight .timeline-dot { background: var(--corona); border-color: var(--corona); }
-.timeline-date { font-size: .65rem; font-weight: 600; color: var(--corona); text-transform: uppercase; letter-spacing: 1px; }
-.timeline-title { font-weight: 600; font-size: .95rem; color: var(--bianco); margin: 3px 0; }
-.timeline-desc { font-size: .82rem; line-height: 1.6; color: rgba(255,255,255,.55); }
-.timeline-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; padding: 4px 10px; border-radius: 6px; background: rgba(79,195,247,.08); color: var(--space-accent); font-size: .7rem; font-weight: 600; text-decoration: none; transition: var(--transition); }
-.timeline-link:hover { background: rgba(79,195,247,.18); }
-.timeline-link svg { width: 11px; height: 11px; }
-
-/* NASA LINKS */
-.nasa-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 14px; }
-.nasa-card { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius); background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); text-decoration: none; color: var(--bianco); transition: var(--transition); }
-.nasa-card:hover { border-color: var(--space-accent); transform: translateY(-1px); }
-.nasa-card .nasa-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(79,195,247,.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.nasa-card .nasa-icon svg { width: 18px; height: 18px; color: var(--space-accent); }
-.nasa-card h5 { font-size: .8rem; font-weight: 600; margin-bottom: 1px; }
-.nasa-card p { font-size: .68rem; color: rgba(255,255,255,.45); }
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .app-container { padding: 10px; }
-  .section-panel { padding: 18px 14px; }
-  .nuclei-nav { gap: 5px; }
-  .nucleo-tab { padding: 7px 12px; font-size: .68rem; }
+/* NUCLEI GRID */
+.nuclei-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 30px; }
+.nucleo-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--nc-border, rgba(255,255,255,.08));
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(79,195,247,.25); border-radius: 3px; }
+.nucleo-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: var(--nc, var(--space-accent));
+  opacity: .6;
+}
+.nucleo-card:hover { border-color: var(--nc, var(--space-accent)); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+.nucleo-card.expanded { border-color: var(--nc, var(--space-accent)); }
+.nc-header { display: flex; align-items: flex-start; gap: 16px; }
+.nc-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  background: var(--nc-bg, rgba(79,195,247,.1));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nc-icon svg { width: 26px; height: 26px; color: var(--nc, var(--space-accent)); }
+.nc-info { flex: 1; }
+.nc-info .nc-num { font-size: .6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--nc, var(--space-accent)); font-weight: 600; margin-bottom: 2px; }
+.nc-info h2 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--bianco); line-height: 1.3; }
+.nc-desc { font-size: .8rem; color: rgba(255,255,255,.45); margin-top: 10px; line-height: 1.6; }
+.nc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.nc-tag { padding: 3px 10px; border-radius: 12px; font-size: .62rem; font-weight: 500; background: rgba(255,255,255,.05); color: rgba(255,255,255,.4); border: 1px solid rgba(255,255,255,.06); }
+.nc-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+  margin-top: 12px;
+}
+.nc-badge.ready { background: rgba(79,195,247,.12); color: var(--space-accent); }
+.nc-badge.soon { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); }
+
+/* EXPANDED EXPERIMENTS LIST */
+.nc-experiments {
+  max-height: 0; overflow: hidden;
+  transition: max-height .4s ease, margin .3s ease, opacity .3s ease;
+  opacity: 0; margin-top: 0;
+}
+.nucleo-card.expanded .nc-experiments { max-height: 600px; opacity: 1; margin-top: 18px; }
+.nc-exp-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.05);
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: var(--bianco);
+  transition: var(--transition);
+}
+.nc-exp-item:hover { background: rgba(255,255,255,.06); border-color: var(--nc, var(--space-accent)); transform: translateX(4px); }
+.nc-exp-item.disabled { opacity: .35; pointer-events: none; }
+.nc-exp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nc, var(--space-accent)); flex-shrink: 0; }
+.nc-exp-text h5 { font-size: .82rem; font-weight: 600; }
+.nc-exp-text p { font-size: .68rem; color: rgba(255,255,255,.4); margin-top: 1px; }
+.nc-exp-arrow { margin-left: auto; color: rgba(255,255,255,.2); font-size: .9rem; }
+.nc-exp-item:hover .nc-exp-arrow { color: var(--nc, var(--space-accent)); }
+
+/* FOOTER */
+.footer { text-align: center; padding: 40px 20px 30px; }
+.footer p { font-size: .7rem; color: rgba(255,255,255,.2); }
+.footer a { color: rgba(79,195,247,.4); }
 </style>
 </head>
 <body>
 
 <div class="stars-container" id="starsContainer"></div>
-<div class="overlay" id="overlay"></div>
-<div class="iper-panel" id="iperPanel">
-  <button class="iper-close" id="iperClose" aria-label="Chiudi">&times;</button>
-  <div id="iperContent"></div>
-</div>
 
 <div class="app-container">
-  <header class="app-header">
+  <!-- HERO -->
+  <div class="hero">
     <h1>Laboratorio Scientifico</h1>
-    <div class="subtitle">Esplora, sperimenta, scopri</div>
+    <div class="subtitle">Esplora &middot; sperimenta &middot; scopri</div>
     <div class="brand-tag">SacraFamiglia education</div>
-  </header>
-  <div class="curricolo-ref">Percorso allineato alle Nuove Indicazioni Nazionali 2025 — Scienze, primo ciclo di istruzione</div>
-
-  <!-- COMPLEXITY -->
-  <div class="complexity-bar">
-    <span class="complexity-label">Livello</span>
-    <button class="complexity-btn active" data-level="1" onclick="setLevel(1)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-      3&ordf;-4&ordf; Primaria
-    </button>
-    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      5&ordf; Primaria &mdash; 1&ordf; Sec.
-    </button>
-    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-      2&ordf;-3&ordf; Secondaria
-    </button>
+    <p class="hero-desc">
+      Simulazioni interattive ed esperimenti virtuali dalla 3&ordf; Primaria alla 3&ordf; Secondaria.<br>
+      Scegli un nucleo tematico e inizia a esplorare. Ogni esperimento ha tre livelli di profondit&agrave;: tu decidi fin dove andare.
+    </p>
   </div>
 
-  <!-- NUCLEI NAV — aligned to Indicazioni 2025 -->
-  <nav class="nuclei-nav">
-    <button class="nucleo-tab coming-soon" style="--tab-color:var(--n1);--tab-bg:var(--n1bg)"><span class="tab-dot"></span>Materia e trasformazioni</button>
-    <button class="nucleo-tab coming-soon" style="--tab-color:var(--n2);--tab-bg:var(--n2bg)"><span class="tab-dot"></span>Forze, movimento ed energia</button>
-    <button class="nucleo-tab coming-soon" style="--tab-color:var(--n3);--tab-bg:var(--n3bg)"><span class="tab-dot"></span>Esseri viventi e corpo umano</button>
-    <button class="nucleo-tab coming-soon" style="--tab-color:var(--n4);--tab-bg:var(--n4bg)"><span class="tab-dot"></span>Scienze della Terra e ambiente</button>
-    <button class="nucleo-tab active" style="--tab-color:var(--n5);--tab-bg:var(--n5bg)"><span class="tab-dot"></span>Astronomia e spazio</button>
-  </nav>
+  <div class="curricolo-ref">Percorso allineato alle Nuove Indicazioni Nazionali 2025 &mdash; Scienze, primo ciclo di istruzione</div>
 
-  <!-- ===== NUCLEO 5: ASTRONOMIA E SPAZIO ===== -->
-  <div id="nucleo5">
+  <!-- LEVEL SELECTOR -->
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn active" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
 
-    <!-- CURRICULUM BOX -->
-    <div class="section-panel">
-      <h2>Astronomia e spazio</h2>
-      <p>Dalle fasi della Luna osservate in classe terza fino alla meccanica orbitale e all'evoluzione dell'Universo in terza secondaria: un viaggio che cresce con te.</p>
+  <!-- NUCLEI GRID -->
+  <div class="nuclei-grid" id="nucleiGrid">
 
-      <div class="curricolo-box">
-        <div class="curricolo-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          Obiettivi dalle Indicazioni Nazionali 2025
+    <!-- N1: MATERIA -->
+    <div class="nucleo-card" style="--nc:var(--n1);--nc-bg:var(--n1bg);--nc-border:var(--n1border)" onclick="toggleNucleo(this)">
+      <div class="nc-header">
+        <div class="nc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg>
         </div>
-        <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Osservare il susseguirsi delle stagioni e delle fasi lunari; costruire modelli della rotazione terrestre per simulare giorno e notte</div>
-        <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Osservare i moti della Terra e della Luna con modelli tridimensionali; tracciare la posizione del Sole a diverse ore; registrare le fasi lunari</div>
-        <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Conoscenze: fasi lunari, ciclo delle maree, ciclo delle stagioni, alternanza del d&igrave; e della notte</div>
-        <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Osservare fenomeni astronomici tramite modellizzazioni e simulazioni: moto del Sole, eclissi, stagioni</div>
-        <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Conoscenze: sistema solare, fenomeni astronomici, evoluzione dell'Universo</div>
-        <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Comprendere l'evoluzione storica delle scienze; analizzare il ruolo della scienza nella societ&agrave; e nell'economia</div>
-      </div>
-    </div>
-
-    <!-- ARTEMIS II INTRO -->
-    <div class="section-panel">
-      <h2>Missione Artemis II &mdash; L'umanit&agrave; torna alla Luna</h2>
-      <p>
-        Il <span class="iper" data-iper="artemis">programma Artemis</span> della NASA ha riportato esseri umani in orbita lunare per la prima volta dopo oltre 50 anni. La missione <strong>Artemis II</strong>, lanciata il 1&deg; aprile 2026, ha portato quattro <span class="iper" data-iper="astronauti">astronauti</span> a sorvolare il <span class="iper" data-iper="lato-nascosto">lato nascosto della Luna</span>, raggiungendo la distanza record di 248.655 miglia dalla Terra.
-      </p>
-      <p>
-        In questa esperienza puoi ripercorrere il viaggio, simulare le <span class="iper" data-iper="orbite">orbite</span>, capire come la <span class="iper" data-iper="gravita">gravit&agrave;</span> guida un veicolo spaziale e osservare le fotografie scattate dall'equipaggio.
-      </p>
-    </div>
-
-    <!-- ORBITAL SIMULATOR -->
-    <div class="section-panel">
-      <h2>Simulatore della Traiettoria</h2>
-      <p>Il percorso reale della navicella Orion dalla Terra alla Luna e ritorno. Osserva come funziona una <span class="iper" data-iper="traiettoria-ritorno">traiettoria a ritorno libero</span>.</p>
-      <div class="sim-container">
-        <canvas id="orbitCanvas" width="1200" height="600"></canvas>
-        <div class="sim-info-strip">
-          <div class="sim-info-item"><span class="label">Giorno</span><span class="value" id="simDay">1</span></div>
-          <div class="sim-info-item"><span class="label">Distanza dalla Terra</span><span class="value" id="simDist">0 km</span></div>
-          <div class="sim-info-item"><span class="label">Velocit&agrave;</span><span class="value" id="simSpeed">0 km/s</span></div>
-          <div class="sim-info-item"><span class="label">Fase</span><span class="value" id="simPhase">Lancio</span></div>
-        </div>
-        <div class="sim-controls">
-          <button class="sim-btn" id="btnPlayPause" onclick="toggleSim()"><span id="playIcon">&#9654; Avvia</span></button>
-          <button class="sim-btn" onclick="resetSim()">&#8635; Ricomincia</button>
-          <div class="sim-slider-group">
-            <label>Velocit&agrave;</label>
-            <input type="range" id="simSpeedSlider" min="1" max="10" value="3">
-          </div>
-          <button class="sim-btn" id="btnTrail" onclick="toggleTrail()">Scia: ON</button>
+        <div class="nc-info">
+          <div class="nc-num">Nucleo 1</div>
+          <h2>Materia e trasformazioni</h2>
         </div>
       </div>
-    </div>
-
-    <!-- EXPERIMENTS -->
-    <div class="section-panel">
-      <h2>Esperimenti Interattivi</h2>
-      <p>Metti le mani sulla fisica dello spazio. Ogni esperimento &egrave; collegato a obiettivi specifici delle Indicazioni Nazionali.</p>
-      <div class="exp-grid">
-        <div class="exp-card" onclick="openExperiment('gravity')">
-          <h4>Il pozzo gravitazionale</h4>
-          <p>Cambia la massa di un pianeta e osserva come le traiettorie si curvano. Lancia oggetti e guarda cosa succede.</p>
-          <div class="complexity-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div>
-          <div class="obj-tag">Obiettivo: sperimentare la gravit&agrave; &bull; Osservare moti e forze</div>
-        </div>
-        <div class="exp-card" onclick="openExperiment('orbits')">
-          <h4>Costruisci la tua orbita</h4>
-          <p>Scegli velocit&agrave; e direzione per mettere un satellite in <span class="iper" data-iper="orbita-circolare">orbita circolare</span>, <span class="iper" data-iper="orbita-ellittica">ellittica</span> o di <span class="iper" data-iper="velocita-fuga">fuga</span>.</p>
-          <div class="complexity-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div>
-          <div class="obj-tag">Obiettivo: modellizzazioni e simulazioni astronomiche</div>
-        </div>
-        <div class="exp-card" onclick="openExperiment('slingshot')">
-          <h4>Fionda gravitazionale</h4>
-          <p>Usa la <span class="iper" data-iper="fionda">gravit&agrave; della Luna</span> per accelerare una sonda verso Marte. Trova l'angolo giusto!</p>
-          <div class="complexity-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div>
-          <div class="obj-tag">Obiettivo: relazioni tra grandezze &bull; Conservazione dell'energia</div>
-        </div>
-        <div class="exp-card" onclick="openExperiment('eclipse')">
-          <h4>Eclissi dallo spazio</h4>
-          <p>Ricrea l'<span class="iper" data-iper="eclissi">eclissi solare</span> fotografata da Artemis II. Perch&eacute; dallo spazio dura 54 minuti?</p>
-          <div class="complexity-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div>
-          <div class="obj-tag">Obiettivo: fenomeni astronomici &bull; Propagazione della luce</div>
-        </div>
+      <p class="nc-desc">Dagli stati della materia alle reazioni chimiche. Osserva le particelle, mescola sostanze, bilancia equazioni.</p>
+      <div class="nc-tags">
+        <span class="nc-tag">Particelle</span>
+        <span class="nc-tag">Stati della materia</span>
+        <span class="nc-tag">Reazioni chimiche</span>
+        <span class="nc-tag">Atomi</span>
       </div>
-      <div class="experiment-area" id="experimentArea">
-        <button class="sim-btn" onclick="closeExperiment()" style="float:right;margin-bottom:10px">Chiudi</button>
-        <h3 id="expTitle"></h3>
-        <canvas id="expCanvas" width="800" height="450"></canvas>
-        <div class="exp-controls" id="expControls"></div>
-        <div class="exp-readout" id="expReadout"></div>
-      </div>
-    </div>
-
-    <!-- TIMELINE -->
-    <div class="section-panel">
-      <h2>Diario di bordo &mdash; 10 giorni verso la Luna</h2>
-      <div class="timeline" id="timeline"></div>
-    </div>
-
-    <!-- NASA LINKS -->
-    <div class="section-panel">
-      <h2>Risorse NASA</h2>
-      <p>Fotografie in alta risoluzione, video, podcast e dati scientifici della missione.</p>
-      <div class="nasa-links">
-        <a href="https://www.nasa.gov/gallery/lunar-flyby/" target="_blank" rel="noopener" class="nasa-card">
-          <div class="nasa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
-          <div class="nasa-text"><h5>Foto del sorvolo lunare</h5><p>Immagini dal lato nascosto della Luna</p></div>
+      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-experiments">
+        <a href="n1-particelle.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Simulatore particelle</h5><p>Stati della materia, temperatura, pressione</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="https://www.nasa.gov/gallery/journey-to-the-moon/" target="_blank" rel="noopener" class="nasa-card">
-          <div class="nasa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
-          <div class="nasa-text"><h5>Il viaggio verso la Luna</h5><p>La Terra che si allontana, selfie di Orion</p></div>
+        <a href="n1-miscugli.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Laboratorio miscugli</h5><p>Mescola, filtra, separa, dissolvi</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
-        <a href="https://www.nasa.gov/artemis-ii-multimedia/" target="_blank" rel="noopener" class="nasa-card">
-          <div class="nasa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-          <div class="nasa-text"><h5>Video, podcast, multimedia</h5><p>Risorse ufficiali complete</p></div>
-        </a>
-        <a href="https://science.nasa.gov/earth/earth-observatory/earthset-from-the-lunar-far-side/" target="_blank" rel="noopener" class="nasa-card">
-          <div class="nasa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
-          <div class="nasa-text"><h5>Earthset dal lato nascosto</h5><p>La Terra vista dalla Luna</p></div>
+        <a href="n1-reazioni.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Bilanciamento reazioni</h5><p>Costruisci e bilancia equazioni chimiche</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
         </a>
       </div>
     </div>
 
-    <!-- OTHER NUCLEI MAP -->
-    <div class="section-panel">
-      <h2>Mappa dei nuclei &mdash; Il percorso completo</h2>
-      <p>Tutti i nuclei del Laboratorio Scientifico, allineati agli obiettivi delle Indicazioni Nazionali 2025. I nuclei in sviluppo saranno attivati progressivamente.</p>
-      <div class="exp-grid" style="margin-top:16px">
-        <div class="exp-card" style="border-color:rgba(171,71,188,.2);cursor:default">
-          <h4 style="color:var(--n1)">1. Materia e trasformazioni</h4>
-          <p><strong>3&ordf; P:</strong> Propriet&agrave; dei materiali, cambiamenti di stato, ghiaccio/acqua/vapore</p>
-          <p><strong>5&ordf; P:</strong> Stati della materia, miscugli, galleggiamento, passaggi di stato</p>
-          <p><strong>Sec.:</strong> Atomi e molecole, reazioni chimiche, tavola periodica, acidi-basi</p>
-          <div class="obj-tag">Simulatore particelle &bull; Laboratorio miscugli &bull; Bilanciamento reazioni</div>
+    <!-- N2: FORZE -->
+    <div class="nucleo-card" style="--nc:var(--n2);--nc-bg:var(--n2bg);--nc-border:var(--n2border)" onclick="toggleNucleo(this)">
+      <div class="nc-header">
+        <div class="nc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         </div>
-        <div class="exp-card" style="border-color:rgba(239,83,80,.2);cursor:default">
-          <h4 style="color:var(--n2)">2. Forze, movimento ed energia</h4>
-          <p><strong>3&ordf; P:</strong> Piani inclinati, pendoli, gravit&agrave;, calamite, suono, luce</p>
-          <p><strong>5&ordf; P:</strong> Circuiti elettrici, magnetismo, vibrazioni, rifrazione</p>
-          <p><strong>Sec.:</strong> Conservazione energia, onde, efficienza energetica, fonti rinnovabili</p>
-          <div class="obj-tag">Laboratorio leve &bull; Costruttore circuiti &bull; Simulatore onde</div>
+        <div class="nc-info">
+          <div class="nc-num">Nucleo 2</div>
+          <h2>Forze, movimento ed energia</h2>
         </div>
-        <div class="exp-card" style="border-color:rgba(102,187,106,.2);cursor:default">
-          <h4 style="color:var(--n3)">3. Esseri viventi e corpo umano</h4>
-          <p><strong>3&ordf; P:</strong> Organi di senso, piante, animali, classificazione</p>
-          <p><strong>5&ordf; P:</strong> Apparato circolatorio, digestione, piante e habitat</p>
-          <p><strong>Sec.:</strong> Cellula, fotosintesi, genetica mendeliana, evoluzione, ecosistemi</p>
-          <div class="obj-tag">Cellula esplorabile &bull; Costruttore DNA &bull; Simulatore ecosistema</div>
-        </div>
-        <div class="exp-card" style="border-color:rgba(141,110,99,.2);cursor:default">
-          <h4 style="color:var(--n4)">4. Scienze della Terra e ambiente</h4>
-          <p><strong>3&ordf; P:</strong> Diario meteorologico, temperatura, stagioni</p>
-          <p><strong>5&ordf; P:</strong> Struttura della Terra, vulcani, terremoti, rocce</p>
-          <p><strong>Sec.:</strong> Clima e effetto serra, ciclo carbonio, sostenibilit&agrave;, rischi naturali</p>
-          <div class="obj-tag">Ciclo dell'acqua &bull; Simulatore vulcano &bull; Laboratorio clima</div>
-        </div>
+      </div>
+      <p class="nc-desc">Dalle leve ai circuiti elettrici, dalle onde alla conservazione dell'energia. Sperimenta le leggi della fisica.</p>
+      <div class="nc-tags">
+        <span class="nc-tag">Leve</span>
+        <span class="nc-tag">Circuiti</span>
+        <span class="nc-tag">Onde</span>
+        <span class="nc-tag">Energia</span>
+      </div>
+      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-experiments">
+        <a href="n2-leve.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Laboratorio leve</h5><p>Bilancia, leve di 1°-2°-3° genere, macchine semplici</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n2-circuiti.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Costruttore circuiti</h5><p>Batterie, lampadine, interruttori, legge di Ohm</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n2-onde.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Simulatore onde</h5><p>Suono, luce, interferenza, diffrazione</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
       </div>
     </div>
 
+    <!-- N3: VIVENTI -->
+    <div class="nucleo-card" style="--nc:var(--n3);--nc-bg:var(--n3bg);--nc-border:var(--n3border)" onclick="toggleNucleo(this)">
+      <div class="nc-header">
+        <div class="nc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="nc-info">
+          <div class="nc-num">Nucleo 3</div>
+          <h2>Esseri viventi e corpo umano</h2>
+        </div>
+      </div>
+      <p class="nc-desc">Dalla cellula alla genetica, dagli ecosistemi all'evoluzione. Esplora la vita a ogni scala.</p>
+      <div class="nc-tags">
+        <span class="nc-tag">Cellula</span>
+        <span class="nc-tag">Fotosintesi</span>
+        <span class="nc-tag">Genetica</span>
+        <span class="nc-tag">Ecosistemi</span>
+      </div>
+      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-experiments">
+        <a href="n3-cellula.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>La cellula esplorabile</h5><p>Zoom progressivo, organelli, animale vs vegetale</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n3-ecosistema.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Simulatore ecosistema</h5><p>Catena alimentare, popolazione, biodiversit&agrave;</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n3-genetica.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Incroci mendeliani</h5><p>Costruttore di incroci, quadrato di Punnett</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- N4: TERRA -->
+    <div class="nucleo-card" style="--nc:var(--n4);--nc-bg:var(--n4bg);--nc-border:var(--n4border)" onclick="toggleNucleo(this)">
+      <div class="nc-header">
+        <div class="nc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        </div>
+        <div class="nc-info">
+          <div class="nc-num">Nucleo 4</div>
+          <h2>Scienze della Terra e ambiente</h2>
+        </div>
+      </div>
+      <p class="nc-desc">Dal ciclo dell'acqua ai vulcani, dall'effetto serra alla sostenibilit&agrave;. Comprendi il pianeta che abiti.</p>
+      <div class="nc-tags">
+        <span class="nc-tag">Ciclo acqua</span>
+        <span class="nc-tag">Vulcani</span>
+        <span class="nc-tag">Clima</span>
+        <span class="nc-tag">Sostenibilit&agrave;</span>
+      </div>
+      <div class="nc-badge soon">In sviluppo</div>
+      <div class="nc-experiments">
+        <a href="n4-ciclo-acqua.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Ciclo dell'acqua</h5><p>Evaporazione, nuvole, precipitazione, infiltrazione</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n4-vulcano.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Simulatore vulcano</h5><p>Sezione della Terra, tipi di eruzione, tettonica</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n4-clima.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Laboratorio clima</h5><p>Effetto serra, bilancio energetico, proiezioni</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- N5: SPAZIO -->
+    <div class="nucleo-card" style="--nc:var(--n5);--nc-bg:var(--n5bg);--nc-border:var(--n5border)" onclick="toggleNucleo(this)">
+      <div class="nc-header">
+        <div class="nc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </div>
+        <div class="nc-info">
+          <div class="nc-num">Nucleo 5</div>
+          <h2>Astronomia e spazio</h2>
+        </div>
+      </div>
+      <p class="nc-desc">Dalle fasi lunari alla missione Artemis II, dal sistema solare alla meccanica orbitale. Lo spazio a portata di click.</p>
+      <div class="nc-tags">
+        <span class="nc-tag">Artemis II</span>
+        <span class="nc-tag">Sistema solare</span>
+        <span class="nc-tag">Orbite</span>
+        <span class="nc-tag">Giorno/notte</span>
+      </div>
+      <div class="nc-badge ready">Disponibile</div>
+      <div class="nc-experiments">
+        <a href="n5-artemis.html" class="nc-exp-item">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Missione Artemis II</h5><p>Simulatore orbitale, timeline, esperimenti, foto NASA</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n5-sistema-solare.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Sistema solare navigabile</h5><p>Orbite in scala, confronto dimensioni, dati planetari</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+        <a href="n5-giorno-notte.html" class="nc-exp-item disabled">
+          <div class="nc-exp-dot"></div>
+          <div class="nc-exp-text"><h5>Giorno, notte e stagioni</h5><p>Rotazione, inclinazione assiale, fasi lunari</p></div>
+          <span class="nc-exp-arrow">&rsaquo;</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Laboratorio Scientifico &mdash; SacraFamiglia education &mdash; Nuove Indicazioni Nazionali 2025</p>
   </div>
 </div>
 
+<script src="glossario.js"></script>
 <script>
-// ===== STARS =====
-(function(){const c=document.getElementById('starsContainer');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*3+1}s;animation-delay:${Math.random()*3}s`;c.appendChild(s)}})();
+function toggleNucleo(card){
+  const wasExpanded = card.classList.contains('expanded');
+  // Chiudi tutti
+  document.querySelectorAll('.nucleo-card').forEach(c => c.classList.remove('expanded'));
+  // Apri questo se non era aperto
+  if(!wasExpanded) card.classList.add('expanded');
+}
 
-// ===== COMPLEXITY =====
-let currentLevel=1;
-function setLevel(lv){currentLevel=lv;document.querySelectorAll('.complexity-btn').forEach(b=>b.classList.toggle('active',+b.dataset.level===lv))}
-
-// ===== GLOSSARY =====
-const G={
-'artemis':{title:'Il programma Artemis',levels:{
-1:'Artemis \u00e8 il programma della NASA per riportare gli esseri umani sulla Luna. Il nome viene dalla dea greca della Luna. Il primo volo con equipaggio, Artemis II, \u00e8 partito il 1\u00b0 aprile 2026.',
-2:'Artemis \u00e8 il successore del programma Apollo (1961-1972). Prevede una presenza permanente sulla Luna con la stazione orbitale Gateway e basi sulla superficie. Artemis I (2022) ha testato la capsula Orion senza equipaggio; Artemis II (2026) \u00e8 il primo volo con astronauti; Artemis III porter\u00e0 il primo allunaggio dal 1972.',
-3:'Il programma si basa su tre elementi: il lanciatore SLS (8,8 milioni di libbre di spinta), la capsula Orion con modulo di servizio ESA, e la stazione orbitale Gateway in orbita NRHO cislunare. Integra partner commerciali (SpaceX per il lander HLS) e internazionali (ESA, CSA, JAXA). L\'architettura prevede missioni di complessit\u00e0 crescente fino all\'esplorazione marziana.'}},
-'astronauti':{title:'L\'equipaggio di Artemis II',levels:{
-1:'Quattro astronauti hanno viaggiato verso la Luna: Reid Wiseman (comandante), Victor Glover (pilota), Christina Koch e Jeremy Hansen. Christina Koch \u00e8 diventata la donna pi\u00f9 lontana dalla Terra nella storia!',
-2:'Tre astronauti NASA e uno canadese (CSA). Wiseman \u00e8 un ex pilota della Marina; Glover ha volato sulla ISS; Koch detiene il record femminile di permanenza nello spazio; Hansen \u00e8 il primo canadese oltre l\'orbita terrestre.',
-3:'La selezione segue criteri di ridondanza operativa: ogni membro \u00e8 addestrato per i compiti critici degli altri. Wiseman e Glover gestiscono navigazione e manovre, Koch le osservazioni scientifiche, Hansen comunicazioni ed esperimenti. Durante il sorvolo hanno lavorato a turni per coprire 7 ore di osservazione.'}},
-'lato-nascosto':{title:'Il lato nascosto della Luna',levels:{
-1:'La Luna mostra sempre la stessa faccia verso la Terra \u2014 come se ti guardasse sempre con lo stesso occhio! Il lato nascosto \u00e8 la parte che non vediamo mai. Gli astronauti di Artemis II l\'hanno sorvolato e fotografato.',
-2:'La Luna \u00e8 in rotazione sincrona: impiega lo stesso tempo a ruotare su s\u00e9 stessa e a orbitare (~27,3 giorni). Il lato nascosto, fotografato dalla sonda Luna 3 nel 1959, ha pi\u00f9 crateri, meno "mari" basaltici e una crosta pi\u00f9 spessa.',
-3:'La rotazione sincrona \u00e8 il risultato del blocco mareale. L\'asimmetria tra le due facce dipende dallo spessore della crosta: lato vicino ~30 km (magma basaltico ha formato i maria), lato nascosto ~50 km. L\'equipaggio ha documentato il bacino Hertzsprung e il cratere Vavilov.'}},
-'orbite':{title:'Le orbite',levels:{
-1:'Un\'orbita \u00e8 il percorso che un oggetto fa intorno a un altro per la gravit\u00e0 \u2014 come una palla che rotola in una ciotola senza fermarsi. La Luna orbita intorno alla Terra, e la Terra intorno al Sole.',
-2:'Un oggetto in orbita "cade" continuamente ma la velocit\u00e0 laterale lo fa curvare. Troppo lento \u2192 cade; velocit\u00e0 giusta \u2192 orbita circolare; pi\u00f9 veloce \u2192 ellittica; ancora pi\u00f9 veloce \u2192 fuga.',
-3:'Le orbite seguono le leggi di Keplero: ellissi col corpo centrale in un fuoco; raggio vettore spazza aree uguali in tempi uguali; T\u00b2 \u221d a\u00b3. Velocit\u00e0 circolare: v = \u221a(GM/r). Velocit\u00e0 di fuga: v = \u221a(2GM/r). Artemis II ha usato una traiettoria a ritorno libero.'}},
-'gravita':{title:'La gravit\u00e0',levels:{
-1:'La gravit\u00e0 \u00e8 la forza che ci tiene a terra e fa cadere le mele. Ogni cosa che ha massa attira ogni altra cosa: pi\u00f9 \u00e8 pesante, pi\u00f9 attira.',
-2:'Newton la descrive come F = G\u00b7m\u2081\u00b7m\u2082/r\u00b2. Sulla Terra genera ~9,8 m/s\u00b2, sulla Luna ~1,6 m/s\u00b2 (un sesto). Per questo gli astronauti "saltano" sulla Luna.',
-3:'Einstein nella Relativit\u00e0 Generale (1915) la ridefinisce come curvatura dello spaziotempo. Gli oggetti seguono geodetiche nello spaziotempo curvo. Spiega precessione di Mercurio, deflessione della luce, onde gravitazionali, dilatazione temporale (i GPS correggono ~38 \u03bcs/giorno).'}},
-'traiettoria-ritorno':{title:'Traiettoria a ritorno libero',levels:{
-1:'\u00c8 come lanciare una pallina su una rampa curva: sale, gira intorno al punto pi\u00f9 alto e torna gi\u00f9 da sola. Orion ha fatto lo stesso intorno alla Luna!',
-2:'Sfrutta la gravit\u00e0 della Luna per curvare e tornare senza accendere i motori. \u00c8 il piano di sicurezza: se qualcosa va storto, l\'equipaggio torna comunque. Apollo 13 us\u00f2 questa strategia nel 1970.',
-3:'Dopo la TLI (\u0394v \u2248 3,1 km/s), la navicella segue un\'orbita a ritorno libero circumlunare con flyby a ~130 km. La geometria \u00e8 determinata dal vettore velocit\u00e0 post-TLI. Periodo totale ~10 giorni, con possibilit\u00e0 di abort diretto nelle prime fasi.'}},
-'orbita-circolare':{title:'Orbita circolare',levels:{
-1:'Quando un satellite gira mantenendo sempre la stessa distanza, come una giostra. La Stazione Spaziale \u00e8 in orbita quasi circolare!',
-2:'La forza gravitazionale \u00e8 esattamente bilanciata dalla forza centrifuga. La ISS viaggia a ~7,7 km/s a 400 km; un satellite geostazionario a 35.786 km si muove a ~3 km/s.',
-3:'Richiede v = \u221a(GM/r), eccentricit\u00e0 e = 0. Energia specifica E = -GM/(2r). Periodo T = 2\u03c0\u221a(r\u00b3/GM). Perturbazioni da J\u2082, resistenza atmosferica e terzi corpi rendono le orbite reali osculanti.'}},
-'orbita-ellittica':{title:'Orbita ellittica',levels:{
-1:'Come un ovale: a volte il satellite \u00e8 pi\u00f9 vicino (e va veloce), a volte pi\u00f9 lontano (e va piano). Quasi tutti i pianeti seguono orbite ellittiche!',
-2:'Keplero scopr\u00ec che i pianeti orbitano su ellissi col Sole in un fuoco. Il satellite accelera al perigeo e rallenta all\'apogeo (seconda legge di Keplero).',
-3:'Eccentricit\u00e0 0 < e < 1. Equazione: r = a(1-e\u00b2)/(1+e\u00b7cos\u03b8). Energia E = -GM/(2a). Il trasferimento di Hohmann sfrutta la differenza di velocit\u00e0 tra orbite per cambiare altitudine col minimo \u0394v.'}},
-'velocita-fuga':{title:'Velocit\u00e0 di fuga',levels:{
-1:'Se lanci una palla fortissimo verso l\'alto, non torna pi\u00f9 indietro! Quella velocit\u00e0 speciale si chiama velocit\u00e0 di fuga. Per la Terra \u00e8 circa 40.000 km/h.',
-2:'La velocit\u00e0 minima per sfuggire alla gravit\u00e0 senza ulteriori spinte. Dalla Terra ~11,2 km/s; dalla Luna ~2,4 km/s; da Giove ~60 km/s.',
-3:'v = \u221a(2GM/r) = \u221a2 \u00b7 v_circolare. Orbita parabolica: e=1, E=0. Iperbolica: e>1, E>0, velocit\u00e0 residua all\'infinito v\u221e = \u221a(v\u00b2 - v_fuga\u00b2). La C\u2083 (= v\u221e\u00b2) \u00e8 parametro chiave nelle missioni interplanetarie.'}},
-'fionda':{title:'Fionda gravitazionale',levels:{
-1:'Come lanciare una pallina contro un treno: quando rimbalza, va molto pi\u00f9 veloce! Le sonde usano la gravit\u00e0 dei pianeti allo stesso modo.',
-2:'Sfrutta il moto di un pianeta per modificare velocit\u00e0 di una sonda. Rispetto al pianeta, la sonda entra ed esce alla stessa velocit\u00e0; rispetto al Sole, guadagna. Voyager 2 ha usato 4 fionde.',
-3:'Nel riferimento del pianeta, il flyby \u00e8 una deflessione elastica. Nel sistema solare, si aggiunge il vettore velocit\u00e0 del pianeta. \u0394v massimo = 2\u00b7V_pianeta. La patched conic approximation modella la traiettoria come archi conici raccordati alla sfera d\'influenza.'}},
-'eclissi':{title:'Eclissi solare',levels:{
-1:'Succede quando la Luna si mette tra Terra e Sole, facendo ombra. Il cielo diventa buio in pieno giorno! Dalla Terra dura pochi minuti, ma Artemis II l\'ha vista per quasi un\'ora.',
-2:'La totalit\u00e0 dalla Terra dura al massimo ~7,5 minuti. L\'equipaggio di Artemis II, vicino alla Luna, ha visto 54 minuti di totalit\u00e0 perch\u00e9 la Luna appariva enorme rispetto al Sole, mostrando la corona solare.',
-3:'Diametro angolare del Sole dalla Terra: ~0,53\u00b0, della Luna: ~0,52\u00b0. Da 130 km dalla superficie lunare: \u03b8_Luna \u2248 2\u00b7arctan(1737/130) \u2248 170\u00b0, enormemente maggiore del Sole \u2192 54 minuti di totalit\u00e0 con osservazione dettagliata della corona.'}},
-'orion':{title:'La navicella Orion',levels:{
-1:'La capsula spaziale della NASA per lo spazio profondo. Ha 4 finestrini, uno scudo termico e pannelli solari come ali per l\'energia.',
-2:'Due moduli: equipaggio (NASA, 4 astronauti) e servizio (ESA, propulsione ed energia). Lo scudo AVCOAT resiste a ~2.760\u00b0C durante il rientro a ~40.000 km/h. Ammara nell\'oceano.',
-3:'Modulo di servizio ESA derivato dall\'ATV. Motore OMS-E (25,7 kN) + 8 ausiliari + 24 RCS. Pannelli solari: 4 ali, 11,1 kW. Rientro con skip entry: la capsula "rimbalza" sull\'atmosfera riducendo la decelerazione a ~4g.'}},
-'tli':{title:'Spinta translunare (TLI)',levels:{
-1:'Per andare alla Luna, la navicella accende i motori e va velocissima \u2014 come spingere una biglia su una rampa. Questa grande spinta si chiama iniezione translunare.',
-2:'L\'accensione che porta Orion dall\'orbita terrestre alla traiettoria verso la Luna: da ~7,8 km/s a ~10,8 km/s in pochi minuti. Da quel momento, 4 giorni di viaggio.',
-3:'Lo stadio ICPS (motore RL-10B-2, 110 kN) esegue un burn di ~350 s. Il timing \u00e8 critico: deve intercettare la Luna nella posizione corretta 4 giorni dopo (problema dei tre corpi). \u0394v totale dalla LEO: ~3,1 km/s.'}}
-};
-
-document.addEventListener('click',function(e){
-  if(!e.target.classList.contains('iper'))return;
-  const entry=G[e.target.dataset.iper];if(!entry)return;
-  const lv=currentLevel,cls=lv===1?'l1':lv===2?'l2':'l3',nm=lv===1?'3\u00aa-4\u00aa Primaria':lv===2?'5\u00aa Primaria \u2014 1\u00aa Sec.':'2\u00aa-3\u00aa Secondaria';
-  document.getElementById('iperContent').innerHTML=`<span class="level-tag ${cls}">${nm}</span><h4>${entry.title}</h4><p>${entry.levels[lv]}</p>`;
-  document.getElementById('iperPanel').classList.add('visible');
-  document.getElementById('overlay').classList.add('visible');
+// Passa il livello ai link
+document.querySelectorAll('.nc-exp-item:not(.disabled)').forEach(a => {
+  a.addEventListener('click', function(e){
+    e.stopPropagation();
+    const url = new URL(this.href, window.location);
+    url.searchParams.set('livello', currentLevel);
+    this.href = url.toString();
+  });
 });
-document.getElementById('iperClose').onclick=closeIper;
-document.getElementById('overlay').onclick=closeIper;
-function closeIper(){document.getElementById('iperPanel').classList.remove('visible');document.getElementById('overlay').classList.remove('visible')}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeIper()});
-
-// ===== TIMELINE =====
-const extLink='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
-const tlData=[
-{date:'1 aprile 2026 — Giorno 1',title:'Lancio dallo Space Launch System',desc:'Il razzo pi\u00f9 potente della NASA porta la capsula <span class="iper" data-iper="orion">Orion</span> in orbita. Poche ore dopo, la <span class="iper" data-iper="tli">spinta translunare</span> lancia la navicella verso la Luna.',link:'https://www.nasa.gov/gallery/journey-to-the-moon/',linkText:'Galleria NASA \u2014 Il viaggio',hl:true},
-{date:'2-3 aprile — Giorni 2-3',title:'In rotta verso la Luna',desc:'La Terra si rimpicciolisce. Reid Wiseman fotografa aurore boreali. Christina Koch diventa la donna pi\u00f9 lontana dalla Terra nella storia.'},
-{date:'5 aprile — Giorno 5',title:'La Luna prende il controllo',desc:'La gravit\u00e0 lunare supera quella terrestre. Da questo punto \u00e8 la Luna a guidare Orion.'},
-{date:'6 aprile — Giorno 6',title:'Sorvolo del lato nascosto \u2014 Record!',desc:'248.655 miglia dalla Terra: record assoluto. Sette ore di sorvolo: crateri, colate laviche, 6 impatti di meteoroidi. 40 minuti senza contatto con la Terra. Foto del <span class="iper" data-iper="eclissi">sorgere della Terra</span> e di un\'eclissi solare con 54 minuti di totalit\u00e0.',link:'https://www.nasa.gov/gallery/lunar-flyby/',linkText:'Galleria NASA \u2014 Sorvolo lunare',hl:true},
-{date:'7-9 aprile — Giorni 7-9',title:'Il viaggio di ritorno',desc:'La <span class="iper" data-iper="traiettoria-ritorno">traiettoria a ritorno libero</span> riporta Orion verso la Terra senza motori. L\'equipaggio parla con gli astronauti della Stazione Spaziale.',link:'https://www.nasa.gov/gallery/return-to-earth/',linkText:'Galleria NASA \u2014 Il ritorno'},
-{date:'10 aprile — Giorno 10',title:'Ammaraggio nel Pacifico',desc:'Rientro a oltre 40.000 km/h. Lo scudo termico protegge da ~2.800\u00b0C. Ammaraggio a San Diego alle 20:07 EDT. Missione compiuta.',link:'https://www.nasa.gov/gallery/artemis-ii-splashdown-and-return/',linkText:'Galleria NASA \u2014 Splashdown',hl:true}
-];
-const tlEl=document.getElementById('timeline');
-tlData.forEach(t=>{
-  const d=document.createElement('div');d.className='timeline-item'+(t.hl?' highlight':'');
-  d.innerHTML=`<div class="timeline-dot"></div><div class="timeline-date">${t.date}</div><div class="timeline-title">${t.title}</div><div class="timeline-desc">${t.desc}</div>${t.link?`<a href="${t.link}" target="_blank" rel="noopener" class="timeline-link">${extLink} ${t.linkText}</a>`:''}`;
-  tlEl.appendChild(d);
-});
-
-// ===== ORBITAL SIMULATOR =====
-const canvas=document.getElementById('orbitCanvas'),ctx=canvas.getContext('2d');
-let simRunning=false,simTime=0,showTrail=true,trail=[];
-const SIM={earthX:250,earthY:300,moonOrbitR:350,moonAS:.0003,moonA:Math.PI*.15,earthR:35,moonR:14,total:10000};
-
-function moonPos(t){const a=SIM.moonA+SIM.moonAS*t;return{x:SIM.earthX+SIM.moonOrbitR*Math.cos(a),y:SIM.earthY+SIM.moonOrbitR*Math.sin(a)}}
-function orionPos(p){
-  const mT=moonPos(p*SIM.total);
-  if(p<.05){const r=40+p*600,a=-Math.PI/2+p*8;return{x:SIM.earthX+r*Math.cos(a),y:SIM.earthY+r*Math.sin(a)}}
-  if(p<.5){const t=(p-.05)/.45,mP=moonPos(SIM.total*.55),c1x=SIM.earthX+100,c1y=SIM.earthY-200,c2x=mP.x-80,c2y=mP.y-150,u=1-t;return{x:u*u*u*SIM.earthX+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*mP.x,y:u*u*u*SIM.earthY+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*mP.y}}
-  if(p<.65){const t=(p-.5)/.15,mP=moonPos(SIM.total*.57),a=-Math.PI*.7+t*Math.PI*1.4,r=22+Math.sin(t*Math.PI)*5;return{x:mP.x+r*Math.cos(a),y:mP.y+r*Math.sin(a)}}
-  const t=(p-.65)/.35,mP=moonPos(SIM.total*.6),c1x=mP.x+50,c1y=mP.y+180,c2x=SIM.earthX+200,c2y=SIM.earthY+250,u=1-t;return{x:u*u*u*mP.x+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*(SIM.earthX+20),y:u*u*u*mP.y+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*(SIM.earthY+20)}
-}
-function phase(p){return p<.05?'Lancio e orbita terrestre':p<.15?'Iniezione translunare':p<.48?'In rotta verso la Luna':p<.52?'Sfera d\'influenza lunare':p<.65?'Sorvolo del lato nascosto':p<.75?'Costa translunare':p<.95?'Avvicinamento alla Terra':'Rientro e ammaraggio'}
-function dist(p){const o=orionPos(p),dx=o.x-SIM.earthX,dy=o.y-SIM.earthY;return Math.round(Math.sqrt(dx*dx+dy*dy)/SIM.moonOrbitR*384400)}
-function speed(p){const d=.001,p1=orionPos(Math.max(0,p-d)),p2=orionPos(Math.min(1,p+d)),dx=p2.x-p1.x,dy=p2.y-p1.y;return(Math.sqrt(dx*dx+dy*dy)/(2*d)*384400/SIM.moonOrbitR*.003).toFixed(1)}
-
-function drawSim(){
-  const dpr=window.devicePixelRatio||1;canvas.width=canvas.offsetWidth*dpr;canvas.height=600*dpr;ctx.scale(dpr,dpr);
-  const sc=canvas.offsetWidth/1200;ctx.save();ctx.scale(sc,sc);
-  ctx.fillStyle='#050810';ctx.fillRect(0,0,1200,600);
-  ctx.beginPath();ctx.setLineDash([4,8]);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.arc(SIM.earthX,SIM.earthY,SIM.moonOrbitR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  if(showTrail&&trail.length>1){ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);for(let i=1;i<trail.length;i++)ctx.lineTo(trail[i].x,trail[i].y);ctx.strokeStyle='rgba(79,195,247,.35)';ctx.lineWidth=1.5;ctx.stroke()}
-  // Earth
-  const eg=ctx.createRadialGradient(SIM.earthX-8,SIM.earthY-8,0,SIM.earthX,SIM.earthY,SIM.earthR);eg.addColorStop(0,'#4fc3f7');eg.addColorStop(.5,'#1565c0');eg.addColorStop(1,'#0d47a1');ctx.beginPath();ctx.arc(SIM.earthX,SIM.earthY,SIM.earthR,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();
-  ctx.beginPath();ctx.arc(SIM.earthX,SIM.earthY,SIM.earthR+8,0,Math.PI*2);ctx.fillStyle='rgba(79,195,247,.06)';ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='11px DM Sans';ctx.textAlign='center';ctx.fillText('Terra',SIM.earthX,SIM.earthY+SIM.earthR+18);
-  // Moon
-  const p=simTime/SIM.total,mP=moonPos(simTime);
-  const mg=ctx.createRadialGradient(mP.x-3,mP.y-3,0,mP.x,mP.y,SIM.moonR);mg.addColorStop(0,'#e0e0e0');mg.addColorStop(1,'#9e9e9e');ctx.beginPath();ctx.arc(mP.x,mP.y,SIM.moonR,0,Math.PI*2);ctx.fillStyle=mg;ctx.fill();ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Luna',mP.x,mP.y+SIM.moonR+16);
-  // Orion
-  const oP=orionPos(p);ctx.beginPath();ctx.arc(oP.x,oP.y,8,0,Math.PI*2);ctx.fillStyle='rgba(255,204,2,.18)';ctx.fill();ctx.beginPath();ctx.arc(oP.x,oP.y,4,0,Math.PI*2);ctx.fillStyle='#ffcc02';ctx.fill();ctx.fillStyle='#ffcc02';ctx.font='bold 10px DM Sans';ctx.fillText('Orion',oP.x,oP.y-12);
-  // Info box
-  ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(820,20,360,120);ctx.strokeStyle='rgba(79,195,247,.15)';ctx.strokeRect(820,20,360,120);
-  ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='9px DM Sans';ctx.textAlign='left';ctx.fillText('EQUIPAGGIO ARTEMIS II',840,38);
-  ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='11px DM Sans';
-  ctx.fillText('Reid Wiseman \u2014 Comandante',840,56);ctx.fillText('Victor Glover \u2014 Pilota',840,72);ctx.fillText('Christina Koch \u2014 Specialista',840,88);ctx.fillText('Jeremy Hansen \u2014 Specialista (CSA)',840,104);
-  ctx.fillStyle='rgba(255,204,2,.5)';ctx.font='9px DM Sans';ctx.fillText('1\u201310 aprile 2026 \u00b7 Record: 248.655 miglia dalla Terra',840,126);
-  ctx.restore();
-  document.getElementById('simDay').textContent=Math.min(10,Math.floor(p*10)+1);
-  document.getElementById('simDist').textContent=dist(p).toLocaleString('it')+' km';
-  document.getElementById('simSpeed').textContent=speed(p)+' km/s';
-  document.getElementById('simPhase').textContent=phase(p);
-}
-function simLoop(){if(!simRunning)return;simTime+=document.getElementById('simSpeedSlider').value*2;if(simTime>=SIM.total){simTime=SIM.total;simRunning=false;document.getElementById('playIcon').innerHTML='&#9654; Avvia'}const p=simTime/SIM.total,o=orionPos(p);trail.push(o);drawSim();if(simRunning)requestAnimationFrame(simLoop)}
-function toggleSim(){simRunning=!simRunning;document.getElementById('playIcon').innerHTML=simRunning?'&#10074;&#10074; Pausa':'&#9654; Avvia';if(simRunning)simLoop()}
-function resetSim(){simRunning=false;simTime=0;trail=[];document.getElementById('playIcon').innerHTML='&#9654; Avvia';drawSim()}
-function toggleTrail(){showTrail=!showTrail;document.getElementById('btnTrail').textContent='Scia: '+(showTrail?'ON':'OFF');drawSim()}
-setTimeout(drawSim,100);window.addEventListener('resize',drawSim);
-
-// ===== EXPERIMENTS =====
-const expCanvas=document.getElementById('expCanvas'),expCtx=expCanvas.getContext('2d');let expAnim=null;
-function openExperiment(t){document.getElementById('experimentArea').classList.add('visible');if(expAnim)cancelAnimationFrame(expAnim);({gravity:initGravity,orbits:initOrbits,slingshot:initSlingshot,eclipse:initEclipse})[t]();document.getElementById('experimentArea').scrollIntoView({behavior:'smooth',block:'center'})}
-function closeExperiment(){document.getElementById('experimentArea').classList.remove('visible');if(expAnim)cancelAnimationFrame(expAnim)}
-
-function initGravity(){
-  document.getElementById('expTitle').textContent='Il pozzo gravitazionale';
-  document.getElementById('expControls').innerHTML='<label>Massa del pianeta:</label><input type="range" id="gravMass" min="1" max="10" value="5" oninput="document.getElementById(\'gravMassL\').textContent=this.value+\' M\u2295\'"><span id="gravMassL" style="color:var(--space-accent);font-size:.85rem;min-width:55px">5 M\u2295</span><button class="sim-btn" onclick="launchGP()">Lancia oggetto</button>';
-  let parts=[];const cx=400,cy=225;
-  window.launchGP=function(){const a=Math.random()*Math.PI*2,r=180+Math.random()*40;parts.push({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a),vx:-Math.sin(a)*(1.5+Math.random()),vy:Math.cos(a)*(1.5+Math.random()),trail:[],life:300})};
-  for(let i=0;i<3;i++)launchGP();
-  function draw(){
-    const mass=+document.getElementById('gravMass').value,w=800,h=450;expCtx.fillStyle='#050810';expCtx.fillRect(0,0,w,h);
-    for(let r=20;r<200;r+=15){expCtx.beginPath();expCtx.arc(cx,cy,r*Math.pow(mass/5,.3),0,Math.PI*2);expCtx.strokeStyle=`rgba(79,195,247,${Math.max(.02,.15-r*.001)*mass/5})`;expCtx.stroke()}
-    const pR=12+mass*2,g=expCtx.createRadialGradient(cx-3,cy-3,0,cx,cy,pR);g.addColorStop(0,'#4fc3f7');g.addColorStop(1,'#0d47a1');expCtx.beginPath();expCtx.arc(cx,cy,pR,0,Math.PI*2);expCtx.fillStyle=g;expCtx.fill();
-    parts=parts.filter(p=>p.life>0);parts.forEach(p=>{const dx=cx-p.x,dy=cy-p.y,d=Math.sqrt(dx*dx+dy*dy);if(d<pR){p.life=0;return}const f=mass*30/(d*d);p.vx+=(dx/d)*f;p.vy+=(dy/d)*f;p.x+=p.vx;p.y+=p.vy;p.trail.push({x:p.x,y:p.y});if(p.trail.length>80)p.trail.shift();p.life--;
-    if(p.trail.length>1){expCtx.beginPath();expCtx.moveTo(p.trail[0].x,p.trail[0].y);for(let i=1;i<p.trail.length;i++)expCtx.lineTo(p.trail[i].x,p.trail[i].y);expCtx.strokeStyle='rgba(255,204,2,.3)';expCtx.lineWidth=1;expCtx.stroke()}
-    expCtx.beginPath();expCtx.arc(p.x,p.y,3,0,Math.PI*2);expCtx.fillStyle='#ffcc02';expCtx.fill()});
-    document.getElementById('expReadout').innerHTML=`<strong>Cosa osservi?</strong> Cambia la massa e guarda come cambiano le traiettorie. Pi\u00f9 massa = pi\u00f9 gravit\u00e0 = pi\u00f9 curvatura.${currentLevel>=2?'<br><br><strong>Indaga:</strong> F = G\u00b7m\u2081\u00b7m\u2082/r\u00b2. Nota come gli oggetti pi\u00f9 vicini subiscono una deflessione molto maggiore.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> Le traiettorie sono coniche: ellissi (E<0), parabole (E=0), iperboli (E>0). L\'energia orbitale specifica E = \u00bdv\u00b2 - GM/r determina il tipo.':''}`;
-    expAnim=requestAnimationFrame(draw)}
-  draw();
-}
-
-function initOrbits(){
-  document.getElementById('expTitle').textContent='Costruisci la tua orbita';
-  document.getElementById('expControls').innerHTML='<label>Velocit\u00e0:</label><input type="range" id="orbV" min="1" max="20" value="8" step=".5" oninput="document.getElementById(\'orbVL\').textContent=this.value+\' km/s\'"><span id="orbVL" style="color:var(--space-accent);font-size:.85rem;min-width:65px">8 km/s</span><label>Angolo:</label><input type="range" id="orbA" min="0" max="360" value="90" oninput="document.getElementById(\'orbAL\').textContent=this.value+\'\u00b0\'"><span id="orbAL" style="color:var(--space-accent);font-size:.85rem;min-width:35px">90\u00b0</span><button class="sim-btn" onclick="launchSat()">Lancia!</button>';
-  const cx=400,cy=225,pR=30;let sat=null;
-  window.launchSat=function(){const v=+document.getElementById('orbV').value,a=+document.getElementById('orbA').value*Math.PI/180;sat={x:cx+80,y:cy,vx:Math.cos(a)*v*.3,vy:-Math.sin(a)*v*.3,trail:[],alive:true}};
-  function draw(){
-    expCtx.fillStyle='#050810';expCtx.fillRect(0,0,800,450);
-    const g=expCtx.createRadialGradient(cx-5,cy-5,0,cx,cy,pR);g.addColorStop(0,'#4fc3f7');g.addColorStop(1,'#0d47a1');expCtx.beginPath();expCtx.arc(cx,cy,pR,0,Math.PI*2);expCtx.fillStyle=g;expCtx.fill();
-    if(!sat||!sat.alive){expCtx.beginPath();expCtx.arc(cx+80,cy,5,0,Math.PI*2);expCtx.fillStyle='rgba(255,204,2,.4)';expCtx.fill();expCtx.fillStyle='rgba(255,255,255,.35)';expCtx.font='10px DM Sans';expCtx.textAlign='left';expCtx.fillText('Punto di lancio',cx+90,cy+4)}
-    if(sat&&sat.alive){const dx=cx-sat.x,dy=cy-sat.y,d=Math.sqrt(dx*dx+dy*dy);if(d<pR||sat.x<-50||sat.x>850||sat.y<-50||sat.y>500)sat.alive=false;else{const f=150/(d*d);sat.vx+=(dx/d)*f;sat.vy+=(dy/d)*f;sat.x+=sat.vx;sat.y+=sat.vy;sat.trail.push({x:sat.x,y:sat.y});if(sat.trail.length>500)sat.trail.shift()}
-    if(sat.trail.length>1){for(let i=1;i<sat.trail.length;i++){expCtx.beginPath();expCtx.moveTo(sat.trail[i-1].x,sat.trail[i-1].y);expCtx.lineTo(sat.trail[i].x,sat.trail[i].y);expCtx.strokeStyle=`rgba(255,204,2,${i/sat.trail.length*.5})`;expCtx.lineWidth=1.5;expCtx.stroke()}}
-    if(sat.alive){expCtx.beginPath();expCtx.arc(sat.x,sat.y,4,0,Math.PI*2);expCtx.fillStyle='#ffcc02';expCtx.fill()}}
-    let info='Imposta velocit\u00e0 e angolo, poi premi Lancia!';
-    if(sat){const dx=cx-sat.x,dy=cy-sat.y,d=Math.sqrt(dx*dx+dy*dy),v=Math.sqrt(sat.vx*sat.vx+sat.vy*sat.vy),vc=Math.sqrt(150/d),ve=vc*1.414;if(!sat.alive&&d<pR+10)info='Impatto!';else if(!sat.alive)info='Fuga!';else if(v>ve*1.05)info='Traiettoria di fuga (iperbole)';else if(v>vc*1.1)info='Orbita ellittica allungata';else if(v>vc*.9)info='Orbita quasi circolare!';else info='Orbita ellittica (rischio impatto)'}
-    document.getElementById('expReadout').innerHTML=`<strong>Stato:</strong> ${info}<br><br><strong>Obiettivo:</strong> Metti il satellite in orbita circolare stabile (angolo ~90\u00b0, velocit\u00e0 ~7-8).${currentLevel>=2?'<br><br><strong>Indaga:</strong> v_circolare = \u221a(GM/r). Se v > \u221a2 \u00b7 v_circ, il satellite sfugge.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> Eccentricit\u00e0 dipende da v/v_circ e angolo. Lancio tangenziale (90\u00b0) con v esatta \u2192 e=0. Trasferimento di Hohmann: ellissi di raccordo per cambiare altitudine con minimo \u0394v.':''}`;
-    expAnim=requestAnimationFrame(draw)}
-  draw();
-}
-
-function initSlingshot(){
-  document.getElementById('expTitle').textContent='Fionda gravitazionale';
-  document.getElementById('expControls').innerHTML='<label>Angolo:</label><input type="range" id="slA" min="0" max="360" value="200" oninput="document.getElementById(\'slAL\').textContent=this.value+\'\u00b0\'"><span id="slAL" style="color:var(--space-accent);font-size:.85rem;min-width:35px">200\u00b0</span><label>Distanza:</label><input type="range" id="slD" min="30" max="120" value="50" oninput="document.getElementById(\'slDL\').textContent=this.value"><span id="slDL" style="color:var(--space-accent);font-size:.85rem;min-width:25px">50</span><button class="sim-btn" onclick="launchSl()">Lancia sonda!</button>';
-  const px=400,py=225,pR=25;let probe=null,bestDv=0;
-  window.launchSl=function(){const a=+document.getElementById('slA').value*Math.PI/180,d=+document.getElementById('slD').value+150;probe={x:px+d*Math.cos(a),y:py+d*Math.sin(a),vx:-Math.cos(a)*2.5,vy:-Math.sin(a)*2.5,initV:2.5,trail:[],alive:true}};
-  function draw(){
-    expCtx.fillStyle='#050810';expCtx.fillRect(0,0,800,450);
-    expCtx.beginPath();expCtx.moveTo(px+40,py);expCtx.lineTo(px+65,py);expCtx.strokeStyle='rgba(255,255,255,.25)';expCtx.lineWidth=1;expCtx.stroke();
-    const g=expCtx.createRadialGradient(px-4,py-4,0,px,py,pR);g.addColorStop(0,'#bdbdbd');g.addColorStop(1,'#616161');expCtx.beginPath();expCtx.arc(px,py,pR,0,Math.PI*2);expCtx.fillStyle=g;expCtx.fill();
-    expCtx.fillStyle='rgba(255,255,255,.45)';expCtx.font='10px DM Sans';expCtx.textAlign='center';expCtx.fillText('Luna',px,py+pR+14);
-    expCtx.beginPath();expCtx.arc(750,60,8,0,Math.PI*2);expCtx.fillStyle='#ef5350';expCtx.fill();expCtx.fillStyle='rgba(239,83,80,.5)';expCtx.fillText('Marte',750,82);
-    if(probe&&probe.alive){const dx=px-probe.x,dy=py-probe.y,d=Math.sqrt(dx*dx+dy*dy);if(d<pR)probe.alive=false;else if(probe.x<-100||probe.x>900||probe.y<-100||probe.y>550)probe.alive=false;else{const f=120/(d*d);probe.vx+=(dx/d)*f;probe.vy+=(dy/d)*f;probe.x+=probe.vx;probe.y+=probe.vy;probe.trail.push({x:probe.x,y:probe.y})}
-    if(probe.trail.length>1){for(let i=1;i<probe.trail.length;i++){const sp=i<probe.trail.length-1?Math.sqrt((probe.trail[i].x-probe.trail[i-1].x)**2+(probe.trail[i].y-probe.trail[i-1].y)**2):0;expCtx.beginPath();expCtx.moveTo(probe.trail[i-1].x,probe.trail[i-1].y);expCtx.lineTo(probe.trail[i].x,probe.trail[i].y);expCtx.strokeStyle=`hsla(${Math.min(sp*30,200)},80%,60%,.4)`;expCtx.lineWidth=1.5;expCtx.stroke()}}
-    if(probe.alive){expCtx.beginPath();expCtx.arc(probe.x,probe.y,4,0,Math.PI*2);expCtx.fillStyle='#ffcc02';expCtx.fill()}
-    const fv=Math.sqrt(probe.vx*probe.vx+probe.vy*probe.vy),dv=((fv-probe.initV)/probe.initV*100).toFixed(0);if(+dv>bestDv)bestDv=+dv}
-    document.getElementById('expReadout').innerHTML=`<strong>Obiettivo:</strong> Fai passare la sonda vicino alla Luna per guadagnare velocit\u00e0 verso Marte (in alto a destra). Colore scia: blu=lenta, rosso=veloce.${probe?`<br>Guadagno: <strong>${bestDv>0?'+':''}${bestDv}%</strong> ${bestDv>30?'\u2014 Ottimo!':bestDv>0?'\u2014 Avvicinati di pi\u00f9!':''}`:''}${currentLevel>=2?'<br><br><strong>Indaga:</strong> La sonda non guadagna energia rispetto al pianeta, ma rispetto al Sole il moto del pianeta le trasferisce energia cinetica.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> \u0394v max = 2\u00b7V_pianeta. Deflessione \u03b4 = 2\u00b7arcsin(1/(1+r_min\u00b7v\u00b2\u221e/GM)). Voyager 2 ha guadagnato ~10 km/s dal flyby di Giove.':''}`;
-    expAnim=requestAnimationFrame(draw)}
-  draw();
-}
-
-function initEclipse(){
-  document.getElementById('expTitle').textContent='Eclissi solare dallo spazio';
-  document.getElementById('expControls').innerHTML='<label>Distanza dalla Luna:</label><input type="range" id="ecD" min="1" max="100" value="5" oninput="document.getElementById(\'ecDL\').textContent=this.value"><span id="ecDL" style="color:var(--space-accent);font-size:.85rem;min-width:25px">5</span><label>Posizione:</label><input type="range" id="ecA" min="0" max="360" value="180" oninput="document.getElementById(\'ecAL\').textContent=this.value+\'\u00b0\'"><span id="ecAL" style="color:var(--space-accent);font-size:.85rem;min-width:35px">180\u00b0</span>';
-  function draw(){
-    expCtx.fillStyle='#050810';expCtx.fillRect(0,0,800,450);
-    const sx=700,sy=225,sR=50,mR=30,mx=300,my=225;
-    const d=+document.getElementById('ecD').value,a=+document.getElementById('ecA').value*Math.PI/180;
-    const ox=mx+(mR+d+10)*Math.cos(a),oy=my+(mR+d+10)*Math.sin(a);
-    const dS=Math.sqrt((sx-ox)**2+(sy-oy)**2),dM=Math.sqrt((mx-ox)**2+(my-oy)**2);
-    const aS=sR/dS*300,aM=mR/dM*300;
-    const a2s=Math.atan2(sy-oy,sx-ox),a2m=Math.atan2(my-oy,mx-ox),ad=Math.abs(a2s-a2m),ecl=ad<.3&&dM<dS;
-    // Corona
-    const cg=expCtx.createRadialGradient(sx,sy,sR-5,sx,sy,sR*2.5);cg.addColorStop(0,'rgba(255,204,2,.35)');cg.addColorStop(.3,'rgba(255,204,2,.08)');cg.addColorStop(1,'transparent');expCtx.beginPath();expCtx.arc(sx,sy,sR*2.5,0,Math.PI*2);expCtx.fillStyle=cg;expCtx.fill();
-    // Sun
-    const sg=expCtx.createRadialGradient(sx,sy,0,sx,sy,sR);sg.addColorStop(0,'#fff9c4');sg.addColorStop(.7,'#ffcc02');sg.addColorStop(1,'#ff8f00');expCtx.beginPath();expCtx.arc(sx,sy,sR,0,Math.PI*2);expCtx.fillStyle=sg;expCtx.fill();expCtx.fillStyle='rgba(255,255,255,.45)';expCtx.font='10px DM Sans';expCtx.textAlign='center';expCtx.fillText('Sole',sx,sy+sR+16);
-    // Moon
-    const mg=expCtx.createRadialGradient(mx-4,my-4,0,mx,my,mR);mg.addColorStop(0,'#bdbdbd');mg.addColorStop(1,'#616161');expCtx.beginPath();expCtx.arc(mx,my,mR,0,Math.PI*2);expCtx.fillStyle=mg;expCtx.fill();expCtx.fillStyle='rgba(255,255,255,.45)';expCtx.fillText('Luna',mx,my+mR+16);
-    // Observer
-    expCtx.beginPath();expCtx.arc(ox,oy,5,0,Math.PI*2);expCtx.fillStyle='#ffcc02';expCtx.fill();expCtx.beginPath();expCtx.arc(ox,oy,10,0,Math.PI*2);expCtx.fillStyle='rgba(255,204,2,.15)';expCtx.fill();expCtx.fillStyle='#ffcc02';expCtx.font='bold 10px DM Sans';expCtx.fillText('Orion',ox,oy-14);
-    // Mini viewport
-    expCtx.fillStyle='rgba(0,0,0,.55)';expCtx.fillRect(20,20,200,150);expCtx.strokeStyle='rgba(79,195,247,.3)';expCtx.strokeRect(20,20,200,150);expCtx.fillStyle='rgba(255,255,255,.35)';expCtx.font='9px DM Sans';expCtx.fillText('Vista dall\'Orion',120,35);
-    const mcx=120,mcy=100;
-    expCtx.save();expCtx.beginPath();expCtx.rect(20,20,200,150);expCtx.clip();
-    if(ecl&&aM>aS*.8){const mc=expCtx.createRadialGradient(mcx,mcy,aS,mcx,mcy,aS*3);mc.addColorStop(0,'rgba(255,204,2,.45)');mc.addColorStop(.5,'rgba(255,204,2,.08)');mc.addColorStop(1,'transparent');expCtx.beginPath();expCtx.arc(mcx,mcy,aS*3,0,Math.PI*2);expCtx.fillStyle=mc;expCtx.fill()}
-    const msg=expCtx.createRadialGradient(mcx,mcy,0,mcx,mcy,aS);msg.addColorStop(0,'#fff9c4');msg.addColorStop(.8,'#ffcc02');msg.addColorStop(1,'#ff8f00');expCtx.beginPath();expCtx.arc(mcx,mcy,aS,0,Math.PI*2);expCtx.fillStyle=msg;expCtx.fill();
-    if(ecl){expCtx.beginPath();expCtx.arc(mcx+(a2m-a2s)*200,mcy,aM,0,Math.PI*2);expCtx.fillStyle='#1a1a1a';expCtx.fill()}
-    expCtx.restore();
-    const cov=ecl?Math.min(100,aM/aS*100).toFixed(0):0,tot=cov>=95;
-    document.getElementById('expReadout').innerHTML=`<strong>Copertura:</strong> ${cov}% ${tot?'\u2014 <strong style="color:#ffcc02">ECLISSI TOTALE!</strong> La corona solare \u00e8 visibile!':''}<br><br><strong>Obiettivo:</strong> Posiziona Orion in modo che la Luna copra il Sole (angolo ~180\u00b0, distanza bassa).${currentLevel>=2?`<br><br><strong>Indaga:</strong> Dalla Terra l'eclissi totale dura max ~7 min. Da vicino alla Luna, la Luna appare enorme \u2192 54 minuti di totalit\u00e0!`:''}${currentLevel>=3?`<br><br><strong>Approfondisci:</strong> Diametro angolare: \u03b8 = 2\u00b7arctan(R/d). Dalla Terra: \u03b8_Sole \u2248 0,53\u00b0, \u03b8_Luna \u2248 0,52\u00b0. Da 130 km: \u03b8_Luna \u2248 170\u00b0 \u2192 totalit\u00e0 estesa e corona visibile in dettaglio.`:''}`;
-    expAnim=requestAnimationFrame(draw)}
-  draw();
-}
 </script>
 </body>
 </html>

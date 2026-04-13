@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Missione Artemis II — Laboratorio Scientifico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root { --nucleo-color: var(--n5); }
+/* SIMULATOR */
+.sim-container { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:#060a14; border:1px solid rgba(79,195,247,.12); }
+#orbitCanvas { display:block; width:100%; }
+.sim-info-strip { display:flex; flex-wrap:wrap; gap:14px; padding:10px 18px; background:rgba(0,0,0,.25); border-top:1px solid rgba(255,255,255,.03); }
+.sim-info-item { display:flex; flex-direction:column; gap:1px; }
+.sim-info-item .label { font-size:.55rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.35); }
+.sim-info-item .value { font-size:.9rem; font-weight:600; color:var(--space-accent); font-variant-numeric:tabular-nums; }
+.sim-controls { display:flex; flex-wrap:wrap; gap:10px; padding:14px 18px; background:rgba(0,0,0,.35); border-top:1px solid rgba(255,255,255,.05); align-items:center; }
+.sim-slider-group { display:flex; align-items:center; gap:7px; flex:1; min-width:180px; }
+.sim-slider-group label { font-size:.7rem; color:rgba(255,255,255,.45); white-space:nowrap; }
+.sim-slider-group input[type="range"] { flex:1; accent-color:var(--space-accent); }
+/* TIMELINE */
+.timeline { position:relative; padding:16px 0; }
+.timeline::before { content:''; position:absolute; left:22px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,transparent,var(--space-accent),var(--corona),var(--space-accent),transparent); }
+.timeline-item { position:relative; padding-left:56px; margin-bottom:24px; transition:var(--transition); }
+.timeline-item:hover { transform:translateX(3px); }
+.timeline-dot { position:absolute; left:14px; top:4px; width:18px; height:18px; border-radius:50%; background:var(--space-bg); border:2.5px solid var(--space-accent); z-index:1; transition:var(--transition); }
+.timeline-item:hover .timeline-dot { background:var(--space-accent); box-shadow:0 0 10px var(--space-glow); }
+.timeline-item.hl .timeline-dot { background:var(--corona); border-color:var(--corona); }
+.tl-date { font-size:.65rem; font-weight:600; color:var(--corona); text-transform:uppercase; letter-spacing:1px; }
+.tl-title { font-weight:600; font-size:.95rem; color:var(--bianco); margin:3px 0; }
+.tl-desc { font-size:.82rem; line-height:1.6; color:rgba(255,255,255,.55); }
+.tl-link { display:inline-flex; align-items:center; gap:4px; margin-top:5px; padding:4px 10px; border-radius:6px; background:rgba(79,195,247,.08); color:var(--space-accent); font-size:.7rem; font-weight:600; text-decoration:none; transition:var(--transition); }
+.tl-link:hover { background:rgba(79,195,247,.18); }
+.tl-link svg { width:11px; height:11px; }
+/* NASA CARDS */
+.nasa-links { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin-top:14px; }
+.nasa-card { display:flex; align-items:center; gap:12px; padding:14px; border-radius:var(--radius); background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); text-decoration:none; color:var(--bianco); transition:var(--transition); }
+.nasa-card:hover { border-color:var(--space-accent); transform:translateY(-1px); }
+.nasa-card .ni { width:36px; height:36px; border-radius:9px; background:rgba(79,195,247,.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.nasa-card .ni svg { width:18px; height:18px; color:var(--space-accent); }
+.nasa-card h5 { font-size:.8rem; font-weight:600; margin-bottom:1px; }
+.nasa-card p { font-size:.68rem; color:rgba(255,255,255,.4); margin:0; }
+</style>
+</head>
+<body>
+
+<div class="stars-container" id="starsContainer"></div>
+
+<div class="app-container">
+  <a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Laboratorio Scientifico</a>
+
+  <header class="page-header">
+    <h1>Missione Artemis II</h1>
+    <div class="subtitle">Astronomia e spazio &middot; Nucleo 5</div>
+  </header>
+
+  <div class="complexity-bar">
+    <span class="complexity-label">Livello</span>
+    <button class="complexity-btn" data-level="1" onclick="setLevel(1)">3&ordf;-4&ordf; Primaria</button>
+    <button class="complexity-btn" data-level="2" onclick="setLevel(2)">5&ordf; Primaria &mdash; 1&ordf; Sec.</button>
+    <button class="complexity-btn" data-level="3" onclick="setLevel(3)">2&ordf;-3&ordf; Secondaria</button>
+  </div>
+
+  <!-- CURRICOLO -->
+  <div class="section-panel">
+    <h2>L'umanit&agrave; torna alla Luna</h2>
+    <p>Il <span class="iper" data-iper="artemis">programma Artemis</span> della NASA ha riportato esseri umani in orbita lunare per la prima volta dopo oltre 50 anni. La missione <strong>Artemis II</strong>, lanciata il 1&deg; aprile 2026, ha portato quattro <span class="iper" data-iper="astronauti">astronauti</span> a sorvolare il <span class="iper" data-iper="lato-nascosto">lato nascosto della Luna</span>, raggiungendo la distanza record di 248.655 miglia dalla Terra.</p>
+    <div class="curricolo-box">
+      <div class="curricolo-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Obiettivi — Indicazioni Nazionali 2025</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-3p">3&ordf; P</span> Costruire modelli della rotazione terrestre; osservare le fasi lunari</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-5p">5&ordf; P</span> Osservare i moti di Terra e Luna con modelli tridimensionali</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Fenomeni astronomici tramite modellizzazioni e simulazioni</div>
+      <div class="curricolo-obj"><span class="classe-tag tag-sec">Sec.</span> Comprendere l'evoluzione storica delle scienze; ruolo della scienza nella societ&agrave;</div>
+    </div>
+  </div>
+
+  <!-- SIMULATOR -->
+  <div class="section-panel">
+    <h2>Simulatore della Traiettoria</h2>
+    <p>Il percorso reale della navicella <span class="iper" data-iper="orion">Orion</span>. Osserva come funziona una <span class="iper" data-iper="traiettoria-ritorno">traiettoria a ritorno libero</span>.</p>
+    <div class="sim-container">
+      <canvas id="orbitCanvas" width="1200" height="600"></canvas>
+      <div class="sim-info-strip">
+        <div class="sim-info-item"><span class="label">Giorno</span><span class="value" id="simDay">1</span></div>
+        <div class="sim-info-item"><span class="label">Distanza dalla Terra</span><span class="value" id="simDist">0 km</span></div>
+        <div class="sim-info-item"><span class="label">Velocit&agrave;</span><span class="value" id="simSpeed">0 km/s</span></div>
+        <div class="sim-info-item"><span class="label">Fase</span><span class="value" id="simPhase">Lancio</span></div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn" id="btnPlay" onclick="toggleSim()"><span id="playIcon">&#9654; Avvia</span></button>
+        <button class="sim-btn" onclick="resetSim()">&#8635; Ricomincia</button>
+        <div class="sim-slider-group"><label>Velocit&agrave;</label><input type="range" id="simSpeedSlider" min="1" max="10" value="3"></div>
+        <button class="sim-btn" id="btnTrail" onclick="toggleTrail()">Scia: ON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIMENTS -->
+  <div class="section-panel">
+    <h2>Esperimenti Interattivi</h2>
+    <div class="card-grid">
+      <div class="exp-card" onclick="openExp('gravity')">
+        <h4>Il pozzo gravitazionale</h4>
+        <p>Cambia la massa e osserva le traiettorie curvarsi.</p>
+        <div class="complexity-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="obj-tag">Sperimentare la <span class="iper" data-iper="gravita">gravit&agrave;</span></div>
+      </div>
+      <div class="exp-card" onclick="openExp('orbits')">
+        <h4>Costruisci la tua orbita</h4>
+        <p>Velocit&agrave; e angolo per orbita <span class="iper" data-iper="orbita-circolare">circolare</span>, <span class="iper" data-iper="orbita-ellittica">ellittica</span> o di <span class="iper" data-iper="velocita-fuga">fuga</span>.</p>
+        <div class="complexity-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div>
+        <div class="obj-tag">Modellizzazioni astronomiche</div>
+      </div>
+      <div class="exp-card" onclick="openExp('slingshot')">
+        <h4>Fionda gravitazionale</h4>
+        <p>Usa la <span class="iper" data-iper="fionda">gravit&agrave; della Luna</span> per accelerare verso Marte!</p>
+        <div class="complexity-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div>
+        <div class="obj-tag">Conservazione dell'<span class="iper" data-iper="energia">energia</span></div>
+      </div>
+      <div class="exp-card" onclick="openExp('eclipse')">
+        <h4>Eclissi dallo spazio</h4>
+        <p>Ricrea l'<span class="iper" data-iper="eclissi">eclissi</span> di Artemis II. 54 minuti di totalit&agrave;!</p>
+        <div class="complexity-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="obj-tag">Propagazione della <span class="iper" data-iper="luce">luce</span></div>
+      </div>
+    </div>
+    <div class="experiment-area" id="experimentArea">
+      <button class="sim-btn" onclick="closeExp()" style="float:right">Chiudi</button>
+      <h3 id="expTitle"></h3>
+      <canvas id="expCanvas" width="800" height="450"></canvas>
+      <div class="exp-controls" id="expControls"></div>
+      <div class="exp-readout" id="expReadout"></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-panel">
+    <h2>Diario di bordo &mdash; 10 giorni verso la Luna</h2>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- NASA -->
+  <div class="section-panel">
+    <h2>Risorse NASA</h2>
+    <div class="nasa-links">
+      <a href="https://www.nasa.gov/gallery/lunar-flyby/" target="_blank" rel="noopener" class="nasa-card"><div class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div><h5>Foto sorvolo lunare</h5><p>Immagini dal lato nascosto</p></div></a>
+      <a href="https://www.nasa.gov/gallery/journey-to-the-moon/" target="_blank" rel="noopener" class="nasa-card"><div class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg></div><div><h5>Il viaggio verso la Luna</h5><p>La Terra che si allontana</p></div></a>
+      <a href="https://www.nasa.gov/artemis-ii-multimedia/" target="_blank" rel="noopener" class="nasa-card"><div class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div><h5>Video e multimedia</h5><p>Risorse ufficiali</p></div></a>
+      <a href="https://www.nasa.gov/gallery/artemis-ii-splashdown-and-return/" target="_blank" rel="noopener" class="nasa-card"><div class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div><div><h5>Splashdown e ritorno</h5><p>L'ammaraggio del 10 aprile</p></div></a>
+    </div>
+  </div>
+</div>
+
+<script src="glossario.js"></script>
+<script>
+// ===== TIMELINE =====
+const EXT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+[
+{d:'1 aprile 2026 — Giorno 1',t:'Lancio dallo Space Launch System',p:'Il razzo porta <span class="iper" data-iper="orion">Orion</span> in orbita. La <span class="iper" data-iper="tli">spinta translunare</span> lancia la navicella verso la Luna.',l:'https://www.nasa.gov/gallery/journey-to-the-moon/',lt:'Galleria — Il viaggio',h:1},
+{d:'2-3 aprile — Giorni 2-3',t:'In rotta verso la Luna',p:'La Terra si rimpicciolisce. Christina Koch diventa la donna pi\u00f9 lontana dalla Terra.'},
+{d:'5 aprile — Giorno 5',t:'La Luna prende il controllo',p:'La gravit\u00e0 lunare supera quella terrestre. Da qui \u00e8 la Luna a guidare Orion.'},
+{d:'6 aprile — Giorno 6',t:'Sorvolo del lato nascosto \u2014 Record!',p:'248.655 miglia: record assoluto. 7 ore di sorvolo. 6 impatti di meteoroidi. <span class="iper" data-iper="eclissi">Eclissi solare</span> con 54 minuti di totalit\u00e0.',l:'https://www.nasa.gov/gallery/lunar-flyby/',lt:'Galleria — Sorvolo lunare',h:1},
+{d:'7-9 aprile — Giorni 7-9',t:'Il viaggio di ritorno',p:'La <span class="iper" data-iper="traiettoria-ritorno">traiettoria a ritorno libero</span> riporta Orion senza motori.',l:'https://www.nasa.gov/gallery/return-to-earth/',lt:'Galleria — Il ritorno'},
+{d:'10 aprile — Giorno 10',t:'Ammaraggio nel Pacifico',p:'Rientro a 40.000+ km/h. Scudo termico a ~2.800\u00b0C. Ammaraggio a San Diego. Missione compiuta.',l:'https://www.nasa.gov/gallery/artemis-ii-splashdown-and-return/',lt:'Galleria — Splashdown',h:1}
+].forEach(e=>{const d=document.createElement('div');d.className='timeline-item'+(e.h?' hl':'');d.innerHTML=`<div class="timeline-dot"></div><div class="tl-date">${e.d}</div><div class="tl-title">${e.t}</div><div class="tl-desc">${e.p}</div>${e.l?`<a href="${e.l}" target="_blank" rel="noopener" class="tl-link">${EXT} ${e.lt}</a>`:''}`;document.getElementById('timeline').appendChild(d)});
+
+// ===== ORBITAL SIMULATOR =====
+const cv=document.getElementById('orbitCanvas'),cx=cv.getContext('2d');
+let running=false,st=0,showTrail=true,trail=[];
+const S={ex:250,ey:300,mr:350,ma:.0003,mi:Math.PI*.15,er:35,lr:14,T:10000};
+function mp(t){const a=S.mi+S.ma*t;return{x:S.ex+S.mr*Math.cos(a),y:S.ey+S.mr*Math.sin(a)}}
+function op(p){
+  if(p<.05){const r=40+p*600,a=-Math.PI/2+p*8;return{x:S.ex+r*Math.cos(a),y:S.ey+r*Math.sin(a)}}
+  if(p<.5){const t=(p-.05)/.45,m=mp(S.T*.55),u=1-t;return{x:u*u*u*S.ex+3*u*u*t*(S.ex+100)+3*u*t*t*(m.x-80)+t*t*t*m.x,y:u*u*u*S.ey+3*u*u*t*(S.ey-200)+3*u*t*t*(m.y-150)+t*t*t*m.y}}
+  if(p<.65){const t=(p-.5)/.15,m=mp(S.T*.57),a=-Math.PI*.7+t*Math.PI*1.4;return{x:m.x+(22+Math.sin(t*Math.PI)*5)*Math.cos(a),y:m.y+(22+Math.sin(t*Math.PI)*5)*Math.sin(a)}}
+  const t=(p-.65)/.35,m=mp(S.T*.6),u=1-t;return{x:u*u*u*m.x+3*u*u*t*(m.x+50)+3*u*t*t*(S.ex+200)+t*t*t*(S.ex+20),y:u*u*u*m.y+3*u*u*t*(m.y+180)+3*u*t*t*(S.ey+250)+t*t*t*(S.ey+20)}
+}
+function ph(p){return p<.05?'Lancio':p<.15?'Iniezione translunare':p<.48?'In rotta verso la Luna':p<.52?'Sfera d\'influenza lunare':p<.65?'Sorvolo lato nascosto':p<.75?'Costa translunare':p<.95?'Avvicinamento Terra':'Rientro'}
+function ds(p){const o=op(p),dx=o.x-S.ex,dy=o.y-S.ey;return Math.round(Math.sqrt(dx*dx+dy*dy)/S.mr*384400)}
+function sp(p){const d=.001,a=op(Math.max(0,p-d)),b=op(Math.min(1,p+d));return(Math.sqrt((b.x-a.x)**2+(b.y-a.y)**2)/(2*d)*384400/S.mr*.003).toFixed(1)}
+
+function draw(){
+  const dpr=window.devicePixelRatio||1;cv.width=cv.offsetWidth*dpr;cv.height=600*dpr;cx.scale(dpr,dpr);
+  const sc=cv.offsetWidth/1200;cx.save();cx.scale(sc,sc);
+  cx.fillStyle='#050810';cx.fillRect(0,0,1200,600);
+  cx.beginPath();cx.setLineDash([4,8]);cx.strokeStyle='rgba(255,255,255,.06)';cx.arc(S.ex,S.ey,S.mr,0,Math.PI*2);cx.stroke();cx.setLineDash([]);
+  if(showTrail&&trail.length>1){cx.beginPath();cx.moveTo(trail[0].x,trail[0].y);trail.forEach(t=>cx.lineTo(t.x,t.y));cx.strokeStyle='rgba(79,195,247,.35)';cx.lineWidth=1.5;cx.stroke()}
+  // Earth
+  let g=cx.createRadialGradient(S.ex-8,S.ey-8,0,S.ex,S.ey,S.er);g.addColorStop(0,'#4fc3f7');g.addColorStop(.5,'#1565c0');g.addColorStop(1,'#0d47a1');cx.beginPath();cx.arc(S.ex,S.ey,S.er,0,Math.PI*2);cx.fillStyle=g;cx.fill();
+  cx.beginPath();cx.arc(S.ex,S.ey,S.er+8,0,Math.PI*2);cx.fillStyle='rgba(79,195,247,.06)';cx.fill();
+  cx.fillStyle='rgba(255,255,255,.5)';cx.font='11px DM Sans';cx.textAlign='center';cx.fillText('Terra',S.ex,S.ey+S.er+18);
+  // Moon
+  const p=st/S.T,mP=mp(st);g=cx.createRadialGradient(mP.x-3,mP.y-3,0,mP.x,mP.y,S.lr);g.addColorStop(0,'#e0e0e0');g.addColorStop(1,'#9e9e9e');cx.beginPath();cx.arc(mP.x,mP.y,S.lr,0,Math.PI*2);cx.fillStyle=g;cx.fill();cx.fillStyle='rgba(255,255,255,.5)';cx.fillText('Luna',mP.x,mP.y+S.lr+16);
+  // Orion
+  const oP=op(p);cx.beginPath();cx.arc(oP.x,oP.y,8,0,Math.PI*2);cx.fillStyle='rgba(255,204,2,.18)';cx.fill();cx.beginPath();cx.arc(oP.x,oP.y,4,0,Math.PI*2);cx.fillStyle='#ffcc02';cx.fill();cx.fillStyle='#ffcc02';cx.font='bold 10px DM Sans';cx.fillText('Orion',oP.x,oP.y-12);
+  // Crew box
+  cx.fillStyle='rgba(0,0,0,.4)';cx.fillRect(820,20,360,120);cx.strokeStyle='rgba(79,195,247,.12)';cx.strokeRect(820,20,360,120);
+  cx.fillStyle='rgba(255,255,255,.4)';cx.font='9px DM Sans';cx.textAlign='left';cx.fillText('EQUIPAGGIO ARTEMIS II',840,38);
+  cx.fillStyle='rgba(255,255,255,.7)';cx.font='11px DM Sans';
+  ['Reid Wiseman \u2014 Comandante','Victor Glover \u2014 Pilota','Christina Koch \u2014 Specialista','Jeremy Hansen \u2014 Specialista (CSA)'].forEach((t,i)=>cx.fillText(t,840,56+i*16));
+  cx.fillStyle='rgba(255,204,2,.5)';cx.font='9px DM Sans';cx.fillText('1\u201310 aprile 2026 \u00b7 Record: 248.655 miglia',840,126);
+  cx.restore();
+  document.getElementById('simDay').textContent=Math.min(10,Math.floor(p*10)+1);
+  document.getElementById('simDist').textContent=ds(p).toLocaleString('it')+' km';
+  document.getElementById('simSpeed').textContent=sp(p)+' km/s';
+  document.getElementById('simPhase').textContent=ph(p);
+}
+function loop(){if(!running)return;st+=document.getElementById('simSpeedSlider').value*2;if(st>=S.T){st=S.T;running=false;document.getElementById('playIcon').innerHTML='&#9654; Avvia'}trail.push(op(st/S.T));draw();if(running)requestAnimationFrame(loop)}
+function toggleSim(){running=!running;document.getElementById('playIcon').innerHTML=running?'&#10074;&#10074; Pausa':'&#9654; Avvia';if(running)loop()}
+function resetSim(){running=false;st=0;trail=[];document.getElementById('playIcon').innerHTML='&#9654; Avvia';draw()}
+function toggleTrail(){showTrail=!showTrail;document.getElementById('btnTrail').textContent='Scia: '+(showTrail?'ON':'OFF');draw()}
+setTimeout(draw,150);window.addEventListener('resize',draw);
+
+// ===== EXPERIMENTS =====
+const ec=document.getElementById('expCanvas'),ex=ec.getContext('2d');let ea=null;
+function openExp(t){document.getElementById('experimentArea').classList.add('visible');if(ea)cancelAnimationFrame(ea);({gravity:initGrav,orbits:initOrb,slingshot:initSl,eclipse:initEcl})[t]();document.getElementById('experimentArea').scrollIntoView({behavior:'smooth',block:'center'})}
+function closeExp(){document.getElementById('experimentArea').classList.remove('visible');if(ea)cancelAnimationFrame(ea)}
+
+function initGrav(){
+  document.getElementById('expTitle').textContent='Il pozzo gravitazionale';
+  document.getElementById('expControls').innerHTML='<label>Massa:</label><input type="range" id="gM" min="1" max="10" value="5" oninput="document.getElementById(\'gML\').textContent=this.value+\' M\u2295\'"><span id="gML">5 M\u2295</span><button class="sim-btn" onclick="gLaunch()">Lancia</button>';
+  let ps=[];const cx=400,cy=225;
+  window.gLaunch=()=>{const a=Math.random()*Math.PI*2,r=180+Math.random()*40;ps.push({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a),vx:-Math.sin(a)*(1.5+Math.random()),vy:Math.cos(a)*(1.5+Math.random()),tr:[],life:300})};
+  for(let i=0;i<3;i++)gLaunch();
+  (function d(){const m=+document.getElementById('gM').value;ex.fillStyle='#050810';ex.fillRect(0,0,800,450);
+  for(let r=20;r<200;r+=15){ex.beginPath();ex.arc(cx,cy,r*Math.pow(m/5,.3),0,Math.PI*2);ex.strokeStyle=`rgba(79,195,247,${Math.max(.02,.15-r*.001)*m/5})`;ex.stroke()}
+  const pR=12+m*2,g=ex.createRadialGradient(cx-3,cy-3,0,cx,cy,pR);g.addColorStop(0,'#4fc3f7');g.addColorStop(1,'#0d47a1');ex.beginPath();ex.arc(cx,cy,pR,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  ps=ps.filter(p=>p.life>0);ps.forEach(p=>{const dx=cx-p.x,dy=cy-p.y,dd=Math.sqrt(dx*dx+dy*dy);if(dd<pR){p.life=0;return}const f=m*30/(dd*dd);p.vx+=(dx/dd)*f;p.vy+=(dy/dd)*f;p.x+=p.vx;p.y+=p.vy;p.tr.push({x:p.x,y:p.y});if(p.tr.length>80)p.tr.shift();p.life--;
+  if(p.tr.length>1){ex.beginPath();ex.moveTo(p.tr[0].x,p.tr[0].y);p.tr.forEach(t=>ex.lineTo(t.x,t.y));ex.strokeStyle='rgba(255,204,2,.3)';ex.lineWidth=1;ex.stroke()}
+  ex.beginPath();ex.arc(p.x,p.y,3,0,Math.PI*2);ex.fillStyle='#ffcc02';ex.fill()});
+  document.getElementById('expReadout').innerHTML=`<strong>Cosa osservi?</strong> Pi\u00f9 massa = pi\u00f9 curvatura delle traiettorie.${currentLevel>=2?'<br><br><strong>Indaga:</strong> F = G\u00b7m\u2081\u00b7m\u2082/r\u00b2. Oggetti pi\u00f9 vicini \u2192 deflessione maggiore.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> Traiettorie coniche: ellissi (E<0), parabole (E=0), iperboli (E>0). E = \u00bdv\u00b2 - GM/r.':''}`;
+  ea=requestAnimationFrame(d)})();
+}
+
+function initOrb(){
+  document.getElementById('expTitle').textContent='Costruisci la tua orbita';
+  document.getElementById('expControls').innerHTML='<label>Velocit\u00e0:</label><input type="range" id="oV" min="1" max="20" value="8" step=".5" oninput="document.getElementById(\'oVL\').textContent=this.value+\' km/s\'"><span id="oVL">8 km/s</span><label>Angolo:</label><input type="range" id="oA" min="0" max="360" value="90" oninput="document.getElementById(\'oAL\').textContent=this.value+\'\u00b0\'"><span id="oAL">90\u00b0</span><button class="sim-btn" onclick="oLaunch()">Lancia!</button>';
+  const cx=400,cy=225,pR=30;let sat=null;
+  window.oLaunch=()=>{const v=+document.getElementById('oV').value,a=+document.getElementById('oA').value*Math.PI/180;sat={x:cx+80,y:cy,vx:Math.cos(a)*v*.3,vy:-Math.sin(a)*v*.3,tr:[],ok:true}};
+  (function d(){ex.fillStyle='#050810';ex.fillRect(0,0,800,450);
+  const g=ex.createRadialGradient(cx-5,cy-5,0,cx,cy,pR);g.addColorStop(0,'#4fc3f7');g.addColorStop(1,'#0d47a1');ex.beginPath();ex.arc(cx,cy,pR,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  if(!sat||!sat.ok){ex.beginPath();ex.arc(cx+80,cy,5,0,Math.PI*2);ex.fillStyle='rgba(255,204,2,.4)';ex.fill()}
+  if(sat&&sat.ok){const dx=cx-sat.x,dy=cy-sat.y,dd=Math.sqrt(dx*dx+dy*dy);if(dd<pR||sat.x<-50||sat.x>850||sat.y<-50||sat.y>500)sat.ok=false;else{const f=150/(dd*dd);sat.vx+=(dx/dd)*f;sat.vy+=(dy/dd)*f;sat.x+=sat.vx;sat.y+=sat.vy;sat.tr.push({x:sat.x,y:sat.y});if(sat.tr.length>500)sat.tr.shift()}
+  if(sat.tr.length>1){for(let i=1;i<sat.tr.length;i++){ex.beginPath();ex.moveTo(sat.tr[i-1].x,sat.tr[i-1].y);ex.lineTo(sat.tr[i].x,sat.tr[i].y);ex.strokeStyle=`rgba(255,204,2,${i/sat.tr.length*.5})`;ex.lineWidth=1.5;ex.stroke()}}
+  if(sat.ok){ex.beginPath();ex.arc(sat.x,sat.y,4,0,Math.PI*2);ex.fillStyle='#ffcc02';ex.fill()}}
+  let info='Imposta velocit\u00e0 e angolo, poi Lancia!';
+  if(sat){const dx=cx-sat.x,dy=cy-sat.y,dd=Math.sqrt(dx*dx+dy*dy),v=Math.sqrt(sat.vx**2+sat.vy**2),vc=Math.sqrt(150/dd);if(!sat.ok&&dd<pR+10)info='Impatto!';else if(!sat.ok)info='Fuga!';else if(v>vc*1.5)info='Traiettoria di fuga';else if(v>vc*1.1)info='Orbita ellittica';else if(v>vc*.9)info='Orbita circolare!';else info='Orbita bassa (rischio impatto)'}
+  document.getElementById('expReadout').innerHTML=`<strong>${info}</strong><br><br>Obiettivo: orbita circolare stabile (~90\u00b0, ~7-8 km/s).${currentLevel>=2?'<br><br><strong>Indaga:</strong> v_circ = \u221a(GM/r). Se v > \u221a2\u00b7v_circ \u2192 fuga.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> Eccentricit\u00e0 da v/v_circ e angolo. Hohmann: \u0394v minimo per cambio orbita.':''}`;
+  ea=requestAnimationFrame(d)})();
+}
+
+function initSl(){
+  document.getElementById('expTitle').textContent='Fionda gravitazionale';
+  document.getElementById('expControls').innerHTML='<label>Angolo:</label><input type="range" id="sA" min="0" max="360" value="200" oninput="document.getElementById(\'sAL\').textContent=this.value+\'\u00b0\'"><span id="sAL">200\u00b0</span><label>Distanza:</label><input type="range" id="sD" min="30" max="120" value="50"><button class="sim-btn" onclick="sLaunch()">Lancia!</button>';
+  const px=400,py=225,pR=25;let pr=null,best=0;
+  window.sLaunch=()=>{const a=+document.getElementById('sA').value*Math.PI/180,d=+document.getElementById('sD').value+150;pr={x:px+d*Math.cos(a),y:py+d*Math.sin(a),vx:-Math.cos(a)*2.5,vy:-Math.sin(a)*2.5,iv:2.5,tr:[],ok:true}};
+  (function d(){ex.fillStyle='#050810';ex.fillRect(0,0,800,450);
+  const g=ex.createRadialGradient(px-4,py-4,0,px,py,pR);g.addColorStop(0,'#bdbdbd');g.addColorStop(1,'#616161');ex.beginPath();ex.arc(px,py,pR,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  ex.fillStyle='rgba(255,255,255,.4)';ex.font='10px DM Sans';ex.textAlign='center';ex.fillText('Luna',px,py+pR+14);
+  ex.beginPath();ex.arc(750,60,8,0,Math.PI*2);ex.fillStyle='#ef5350';ex.fill();ex.fillText('Marte',750,82);
+  if(pr&&pr.ok){const dx=px-pr.x,dy=py-pr.y,dd=Math.sqrt(dx*dx+dy*dy);if(dd<pR||pr.x<-100||pr.x>900||pr.y<-100||pr.y>550)pr.ok=false;else{const f=120/(dd*dd);pr.vx+=(dx/dd)*f;pr.vy+=(dy/dd)*f;pr.x+=pr.vx;pr.y+=pr.vy;pr.tr.push({x:pr.x,y:pr.y})}
+  if(pr.tr.length>1){for(let i=1;i<pr.tr.length;i++){const sp=Math.sqrt((pr.tr[i].x-pr.tr[i-1].x)**2+(pr.tr[i].y-pr.tr[i-1].y)**2);ex.beginPath();ex.moveTo(pr.tr[i-1].x,pr.tr[i-1].y);ex.lineTo(pr.tr[i].x,pr.tr[i].y);ex.strokeStyle=`hsla(${Math.min(sp*30,200)},80%,60%,.4)`;ex.lineWidth=1.5;ex.stroke()}}
+  if(pr.ok){ex.beginPath();ex.arc(pr.x,pr.y,4,0,Math.PI*2);ex.fillStyle='#ffcc02';ex.fill()}
+  const fv=Math.sqrt(pr.vx**2+pr.vy**2),dv=((fv-pr.iv)/pr.iv*100).toFixed(0);if(+dv>best)best=+dv}
+  document.getElementById('expReadout').innerHTML=`<strong>Obiettivo:</strong> Passa vicino alla Luna per guadagnare velocit\u00e0 verso Marte. Colore: blu=lenta, rosso=veloce.${pr?`<br>Guadagno: <strong>${best>0?'+':''}${best}%</strong>${best>30?' \u2014 Ottimo!':best>0?' \u2014 Avvicinati!':''}`:''}${currentLevel>=2?'<br><br><strong>Indaga:</strong> La sonda guadagna energia cinetica dal moto del pianeta, non dalla sua gravit\u00e0 in s\u00e9.':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> \u0394v max = 2\u00b7V_pianeta. Voyager 2: +10 km/s dal flyby di Giove.':''}`;
+  ea=requestAnimationFrame(d)})();
+}
+
+function initEcl(){
+  document.getElementById('expTitle').textContent='Eclissi solare dallo spazio';
+  document.getElementById('expControls').innerHTML='<label>Distanza dalla Luna:</label><input type="range" id="eD" min="1" max="100" value="5"><label>Posizione:</label><input type="range" id="eA" min="0" max="360" value="180">';
+  (function d(){ex.fillStyle='#050810';ex.fillRect(0,0,800,450);
+  const sx=700,sy=225,sR=50,mR=30,mx=300,my=225;
+  const dd=+document.getElementById('eD').value,aa=+document.getElementById('eA').value*Math.PI/180;
+  const ox=mx+(mR+dd+10)*Math.cos(aa),oy=my+(mR+dd+10)*Math.sin(aa);
+  const dS=Math.sqrt((sx-ox)**2+(sy-oy)**2),dM=Math.sqrt((mx-ox)**2+(my-oy)**2);
+  const aS=sR/dS*300,aM=mR/dM*300,a2s=Math.atan2(sy-oy,sx-ox),a2m=Math.atan2(my-oy,mx-ox);
+  const ecl=Math.abs(a2s-a2m)<.3&&dM<dS;
+  // Corona+Sun
+  let g=ex.createRadialGradient(sx,sy,sR-5,sx,sy,sR*2.5);g.addColorStop(0,'rgba(255,204,2,.3)');g.addColorStop(.3,'rgba(255,204,2,.06)');g.addColorStop(1,'transparent');ex.beginPath();ex.arc(sx,sy,sR*2.5,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  g=ex.createRadialGradient(sx,sy,0,sx,sy,sR);g.addColorStop(0,'#fff9c4');g.addColorStop(.7,'#ffcc02');g.addColorStop(1,'#ff8f00');ex.beginPath();ex.arc(sx,sy,sR,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  ex.fillStyle='rgba(255,255,255,.4)';ex.font='10px DM Sans';ex.textAlign='center';ex.fillText('Sole',sx,sy+sR+16);
+  // Moon
+  g=ex.createRadialGradient(mx-4,my-4,0,mx,my,mR);g.addColorStop(0,'#bdbdbd');g.addColorStop(1,'#616161');ex.beginPath();ex.arc(mx,my,mR,0,Math.PI*2);ex.fillStyle=g;ex.fill();ex.fillText('Luna',mx,my+mR+16);
+  // Observer
+  ex.beginPath();ex.arc(ox,oy,5,0,Math.PI*2);ex.fillStyle='#ffcc02';ex.fill();ex.fillStyle='#ffcc02';ex.font='bold 10px DM Sans';ex.fillText('Orion',ox,oy-14);
+  // Mini view
+  ex.fillStyle='rgba(0,0,0,.55)';ex.fillRect(20,20,200,150);ex.strokeStyle='rgba(79,195,247,.3)';ex.strokeRect(20,20,200,150);
+  ex.fillStyle='rgba(255,255,255,.3)';ex.font='9px DM Sans';ex.fillText('Vista dall\'Orion',120,35);
+  const mcx=120,mcy=100;ex.save();ex.beginPath();ex.rect(20,20,200,150);ex.clip();
+  if(ecl&&aM>aS*.8){g=ex.createRadialGradient(mcx,mcy,aS,mcx,mcy,aS*3);g.addColorStop(0,'rgba(255,204,2,.4)');g.addColorStop(.5,'rgba(255,204,2,.06)');g.addColorStop(1,'transparent');ex.beginPath();ex.arc(mcx,mcy,aS*3,0,Math.PI*2);ex.fillStyle=g;ex.fill()}
+  g=ex.createRadialGradient(mcx,mcy,0,mcx,mcy,aS);g.addColorStop(0,'#fff9c4');g.addColorStop(.8,'#ffcc02');g.addColorStop(1,'#ff8f00');ex.beginPath();ex.arc(mcx,mcy,aS,0,Math.PI*2);ex.fillStyle=g;ex.fill();
+  if(ecl){ex.beginPath();ex.arc(mcx+(a2m-a2s)*200,mcy,aM,0,Math.PI*2);ex.fillStyle='#1a1a1a';ex.fill()}
+  ex.restore();
+  const cov=ecl?Math.min(100,aM/aS*100).toFixed(0):0;
+  document.getElementById('expReadout').innerHTML=`<strong>Copertura:</strong> ${cov}%${cov>=95?' \u2014 <strong style="color:#ffcc02">ECLISSI TOTALE!</strong>':''}<br><br>Posiziona Orion per coprire il Sole (~180\u00b0, distanza bassa).${currentLevel>=2?'<br><br><strong>Indaga:</strong> Dalla Terra max ~7 min. Da vicino alla Luna: 54 minuti!':''}${currentLevel>=3?'<br><br><strong>Approfondisci:</strong> \u03b8 = 2\u00b7arctan(R/d). Da 130 km: \u03b8_Luna \u2248 170\u00b0 \u2192 totalit\u00e0 estesa.':''}`;
+  ea=requestAnimationFrame(d)})();
+}
+</script>
+</body>
+</html>
